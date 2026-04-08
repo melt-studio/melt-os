@@ -1599,8 +1599,9 @@ body {
 
       <div class="detail-tabs">
         <div class="d-tab on" onclick="dTab(this,'tp-brief')">Brief</div>
-        <div class="d-tab" onclick="dTab(this,'tp-timeline')">Timeline</div>
-        <div class="d-tab" onclick="dTab(this,'tp-tasks')">Tasks</div>
+        <div class="d-tab" onclick="dTab(this,'tp-assets')">Assets</div>
+        <div class="d-tab" onclick="dTab(this,'tp-deliverables')" id="tab-del">Deliverables</div>
+      <div class="d-tab" onclick="dTab(this,'tp-tasks')">Tasks</div>
         <div class="d-tab" onclick="dTab(this,'tp-presentations')" id="tab-pres">Presentations</div>
       </div>
 
@@ -1610,20 +1611,59 @@ body {
           <!-- Brief -->
           <div class="tab-panel on" id="tp-brief">
             <div class="brief-body">
-              <div class="brief-text" id="d-brief">—</div>
+              <!-- Kickoff Notes -->
+              <div id="d-kickoff-wrap" style="margin-bottom:24px;display:none">
+                <div class="brief-col-hd">Project Kickoff Notes</div>
+                <div id="d-kickoff" style="font-size:10px;color:var(--mid);line-height:1.8;margin-top:8px;white-space:pre-wrap"></div>
+              </div>
+              <!-- Tone + Art Direction grid -->
               <div class="brief-grid">
-                <div><div class="brief-col-hd">Creative Notes</div><div id="d-cn"></div></div>
-                <div><div class="brief-col-hd">Art Direction</div><div id="d-an"></div></div>
+                <div>
+                  <div class="brief-col-hd">Tone</div>
+                  <div id="d-tone" style="font-size:10px;color:var(--mid);line-height:1.7;margin-top:6px">—</div>
+                </div>
+                <div>
+                  <div class="brief-col-hd">Art Direction</div>
+                  <div id="d-art" style="font-size:10px;color:var(--mid);line-height:1.7;margin-top:6px">—</div>
+                </div>
+              </div>
+              <!-- Copy Direction -->
+              <div id="d-copy-wrap" style="margin-top:20px;display:none">
+                <div class="brief-col-hd">Copy Direction</div>
+                <div id="d-copy" style="font-size:10px;color:var(--mid);line-height:1.8;margin-top:8px;white-space:pre-wrap"></div>
+              </div>
+              <!-- Notes -->
+              <div id="d-notes-wrap" style="margin-top:20px;display:none">
+                <div class="brief-col-hd">Notes</div>
+                <div id="d-notes" style="font-size:10px;color:var(--mid);line-height:1.8;margin-top:8px;white-space:pre-wrap"></div>
+              </div>
+              <!-- Figma Concept Board -->
+              <div id="d-figma-wrap" style="margin-top:20px;display:none">
+                <div class="brief-col-hd">Figma Concept Board</div>
+                <a id="d-figma" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-family:var(--mono);font-size:9px;font-weight:700;padding:6px 14px;border-radius:99px;background:var(--off-black);color:var(--off-white);text-decoration:none">Open in Figma ↗</a>
+              </div>
+              <!-- Empty state -->
+              <div id="d-brief-empty" style="padding:32px 0;text-align:center;display:none">
+                <div style="font-size:11px;color:var(--mid)">No brief content yet</div>
+                <div style="font-size:9px;color:var(--faint);margin-top:4px">Add kickoff notes, tone, or art direction in Airtable</div>
               </div>
             </div>
           </div>
 
-          <!-- Timeline -->
-          <div class="tab-panel" id="tp-timeline">
-            <div class="tl-item"><div class="tl-gut"><div class="tl-dot done"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-phase">Phase 01 · Complete</div><div class="tl-name">Project Intake</div><div class="tl-desc">Project scoped, team assigned, brief received.</div><div class="tl-foot"><div class="tl-tag" style="background:var(--off-black);color:var(--off-white)">Complete</div><div class="tl-date" id="tl-s">—</div></div></div></div>
-            <div class="tl-item"><div class="tl-gut"><div class="tl-dot" id="tld2"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-phase">Phase 02</div><div class="tl-name">Creative Development</div><div class="tl-desc" id="tl-d2">Concepts, direction, client round 1.</div><div class="tl-foot"><div class="tl-tag" id="tlt2" style="background:var(--fainer);color:var(--mid)">Upcoming</div><div class="tl-date" id="tl-2">—</div></div></div></div>
-            <div class="tl-item"><div class="tl-gut"><div class="tl-dot" id="tld3"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-phase" id="tlp3">Phase 03</div><div class="tl-name" id="tln3">Finishing</div><div class="tl-desc" id="tl-d3">Final artwork, revisions, sign-off.</div><div class="tl-foot"><div class="tl-tag" id="tlt3" style="background:var(--fainer);color:var(--mid)">Upcoming</div><div class="tl-date" id="tl-3">—</div></div></div></div>
-            <div class="tl-item"><div class="tl-gut"><div class="tl-dot" id="tld4"></div></div><div class="tl-content" style="border-bottom:none"><div class="tl-phase">Phase 04</div><div class="tl-name">Asset Delivery</div><div class="tl-desc">Master files, all formats, handoff.</div><div class="tl-foot"><div class="tl-tag" id="tlt4" style="background:var(--fainer);color:var(--mid)">Upcoming</div><div class="tl-date" id="tl-4">—</div></div></div></div>
+                    <!-- Assets / Drive Links -->
+          <div class="tab-panel" id="tp-assets">
+            <div style="padding:10px 20px;border-bottom:1px solid var(--fainer);display:flex;align-items:center;justify-content:space-between;background:#fff">
+              <div style="font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid)">Project Folders & Links</div>
+            </div>
+            <div id="d-assets-list" style="background:#fff"></div>
+          </div>
+          <!-- Deliverables -->
+          <div class="tab-panel" id="tp-deliverables">
+            <div style="padding:10px 20px;border-bottom:1px solid var(--fainer);display:flex;align-items:center;justify-content:space-between;background:#fff">
+              <div style="font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid)">Deliverables</div>
+              <div id="del-badge" style="font-family:var(--mono);font-size:8px;color:var(--mid)"></div>
+            </div>
+            <div id="d-deliverables-list" style="background:#fff"></div>
           </div>
 
           <!-- Tasks -->
@@ -1927,6 +1967,7 @@ const T = {
   team:            'tblqPMLOMajL4QwwF',
   clients:         'tbleLtK8bqn08G0PW',
   creativeReviews: 'tblMGckU02AhwnKOm',
+  deliverables:    'tblvFq77C7jQLpj6K',
   calendar: 'tblWlwsNY1zXWY2Gl',
 };
 const ALL_SCREENS = ['loading','dash','detail','form','success','projects','tasks','pipeline','deliverables','files','network','archive','calendar'];
@@ -2200,7 +2241,13 @@ async function loadAll() {
       '&fields[]=Project%20Name&fields[]=Job%20Number&fields[]=Status' +
       '&fields[]=Project%20Due%20Date&fields[]=Start%20Date' +
       '&fields[]=Project%20Type&fields[]=Client&fields[]=Current%20Stage' +
-      '&fields[]=Assigned%20Team%20Members',
+      '&fields[]=Assigned%20Team%20Members&fields[]=Assigned%20Freelancer(s)' +
+      '&fields[]=Project%20Kickoff%20Notes&fields[]=Tone&fields[]=Art%20Direction%20Notes' +
+      '&fields[]=Copy%20Direction&fields[]=Figma%20Concept%20Board&fields[]=Notes' +
+      '&fields[]=Key%20Art%20Project%20Folder&fields[]=Graphics%20(GFX)%20Project%20Folder' +
+      '&fields[]=Digital%20Project%20Folder&fields[]=Social%20Media%20Project%20Folder' +
+      '&fields[]=Frame.io%20Link&fields[]=Designer%20Submissions' +
+      '&fields[]=Creative%20Status&fields[]=Deliverables&fields[]=Abbreviated%20Name',
       { headers: { 'Authorization': 'Bearer '+TOKEN } }
     ).then(r=>r.json());
 
@@ -2483,6 +2530,7 @@ function openProject(id) {
   if (presTab) presTab.innerHTML = presCount ? `Presentations <span class="pres-badge">${presCount}</span>` : 'Presentations';
   dTab(null,'tp-brief');
   document.querySelectorAll('.d-tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  renderBrief(p);
   navTo('detail');
   // Project color runs through the whole screen
   const _topbar = document.querySelector('.topbar');
@@ -2512,6 +2560,92 @@ function dTab(el, panelId) {
   const panel=document.getElementById(panelId);
   if (panel) panel.classList.add('on');
   if (panelId==='tp-presentations') renderPresentations(currentProject?.id);
+}
+
+// ─── BRIEF ────────────────────────────────────────────────
+function renderBrief(p) {
+  if (!p) return;
+  const f = p.fields;
+  const stripHtml = s => s ? s.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim() : '';
+  const kw=document.getElementById('d-kickoff-wrap'), kv=document.getElementById('d-kickoff');
+  if (kw&&kv&&f['Project Kickoff Notes']){kw.style.display='block';kv.textContent=stripHtml(f['Project Kickoff Notes']);}
+  const tv=document.getElementById('d-tone'); if(tv)tv.textContent=stripHtml(f['Tone'])||'—';
+  const av=document.getElementById('d-art');  if(av)av.textContent=stripHtml(f['Art Direction Notes'])||'—';
+  const cpw=document.getElementById('d-copy-wrap'),cpv=document.getElementById('d-copy');
+  if(cpw&&cpv&&f['Copy Direction']){cpw.style.display='block';cpv.textContent=stripHtml(f['Copy Direction']);}
+  const nw=document.getElementById('d-notes-wrap'),nv=document.getElementById('d-notes');
+  if(nw&&nv&&f['Notes']){nw.style.display='block';nv.textContent=stripHtml(f['Notes']);}
+  const fw=document.getElementById('d-figma-wrap'),fa=document.getElementById('d-figma');
+  if(fw&&fa&&f['Figma Concept Board']){fw.style.display='block';fa.href=f['Figma Concept Board'];}
+  const hasContent=f['Project Kickoff Notes']||f['Tone']||f['Art Direction Notes']||f['Copy Direction']||f['Notes'];
+  const empty=document.getElementById('d-brief-empty');
+  if(empty)empty.style.display=hasContent?'none':'block';
+}
+
+// ─── ASSETS ───────────────────────────────────────────────
+function renderAssets(p) {
+  const container=document.getElementById('d-assets-list');
+  if(!container||!p)return;
+  const f=p.fields;
+  const folders=[
+    {label:'Key Art Folder',     icon:'🎨',url:f['Key Art Project Folder']},
+    {label:'GFX Folder',         icon:'✦', url:f['Graphics (GFX) Project Folder']},
+    {label:'Digital Folder',     icon:'🖥', url:f['Digital Project Folder']},
+    {label:'Social Media Folder',icon:'📱',url:f['Social Media Project Folder']},
+    {label:'Frame.io',           icon:'▶', url:f['Frame.io Link']},
+    {label:'Designer Submissions',icon:'📂',url:f['Designer Submissions']},
+    {label:'Figma Concept Board',icon:'◆', url:f['Figma Concept Board']},
+  ].filter(i=>i.url);
+  if(!folders.length){
+    container.innerHTML='<div style="padding:32px 20px;text-align:center"><div style="font-size:11px;color:var(--mid)">No folders linked yet</div><div style="font-size:9px;color:var(--faint);margin-top:4px">Add Drive and Frame.io links in Airtable</div></div>';
+    return;
+  }
+  container.innerHTML=folders.map(item=>`<a href="${item.url}" target="_blank" style="display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--fainer);text-decoration:none;background:#fff;transition:background .1s" onmouseover="this.style.background='var(--off-white)'" onmouseout="this.style.background='#fff'"><div style="width:32px;height:32px;border-radius:6px;background:var(--fainer);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${item.icon}</div><div style="flex:1;min-width:0"><div style="font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:-.02em;color:var(--off-black)">${item.label}</div><div style="font-family:var(--mono);font-size:8px;color:var(--mid);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url}</div></div><div style="font-size:10px;color:var(--mid)">↗</div></a>`).join('');
+}
+
+// ─── DELIVERABLES ─────────────────────────────────────────
+async function renderDeliverables(projectId) {
+  const container=document.getElementById('d-deliverables-list');
+  const badge=document.getElementById('del-badge');
+  if(!container)return;
+  container.innerHTML='<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:9px;color:var(--mid)">Loading...</div>';
+  try {
+    const AT=(localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+    const url='https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblvFq77C7jQLpj6K?maxRecords=50&filterByFormula=FIND("'+projectId+'",ARRAYJOIN({Project}))';
+    const res=await fetch(url,{headers:{'Authorization':'Bearer '+AT}}).then(r=>r.json());
+    const recs=res.records||[];
+    if(badge)badge.textContent=recs.length?recs.length+' items':'';
+    if(!recs.length){container.innerHTML='<div style="padding:32px 20px;text-align:center"><div style="font-size:11px;color:var(--mid)">No deliverables yet</div><div style="font-size:9px;color:var(--faint);margin-top:4px">Link deliverables to this project in Airtable</div></div>';return;}
+    const sc={'Approved':'#3D9B6B','In Review':'#C8A84B','Revisions Needed':'#E8645A','Final':'#4A7FD6'};
+    container.innerHTML=recs.map(r=>{
+      const f=r.fields;
+      const name=f['Deliverable Name']||'—';
+      const type=f['Deliverable Type']||'';
+      const status=f['Review Status']||'';
+      const comp=f['Comp Number']?'Comp '+f['Comp Number']:'';
+      const round=f['Round Number']?'R'+f['Round Number']:'';
+      const frameio=f['Frame.io Link'];
+      const isFinal=f['Final Deliverable'];
+      const col=sc[status]||'var(--mid)';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid var(--fainer);background:#fff" onmouseover="this.style.background='var(--off-white)'" onmouseout="this.style.background='#fff'">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:-.02em;color:var(--off-black)">${name}</div>
+            ${isFinal?'<div style="font-family:var(--mono);font-size:7px;font-weight:700;padding:2px 7px;border-radius:99px;background:#EBF5FF;color:#2A6EBB">Final</div>':''}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:3px">
+            ${type?'<span style="font-family:var(--mono);font-size:8px;color:var(--mid)">'+type+'</span>':''}
+            ${comp?'<span style="font-family:var(--mono);font-size:8px;color:var(--mid)">'+comp+'</span>':''}
+            ${round?'<span style="font-family:var(--mono);font-size:8px;color:var(--mid)">'+round+'</span>':''}
+          </div>
+        </div>
+        ${status?'<div style="font-family:var(--mono);font-size:7px;font-weight:700;padding:3px 9px;border-radius:99px;background:'+col+'22;color:'+col+';flex-shrink:0">'+status+'</div>':''}
+        ${frameio?'<a href="'+frameio+'" target="_blank" style="font-family:var(--mono);font-size:8px;font-weight:700;padding:5px 10px;border-radius:6px;background:var(--off-black);color:var(--off-white);text-decoration:none;flex-shrink:0">Frame.io ↗</a>':''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML='<div style="padding:20px;font-size:9px;color:var(--mid)">Error: '+e.message+'</div>';
+  }
 }
 
 // ─── PRESENTATIONS ───────────────────────────────────────
