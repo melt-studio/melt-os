@@ -169,8 +169,11 @@ body {
   background: var(--off-white);
   display: flex; flex-direction: column;
   overflow: hidden;
-  transition: width .25s var(--ease);
-  position: relative;
+  transition: width .2s var(--ease);
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 52px);
+  align-self: flex-start;
 }
 .sidebar.collapsed { width: 44px; }
 
