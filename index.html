@@ -2605,102 +2605,110 @@ function renderPipeline() {
 
 // ─── PROJECT DETAIL ──────────────────────────────────────
 function openProject(id) {
-  const p = DB.projects.find(p=>p.id===id);
+  const p = DB.projects.find(p => p.id === id);
   if (!p) return;
   currentProject = p;
   const f = p.fields;
-  const cid=(f['Client']||[])[0]; const color=cid?clientColor(cid):'#888';
-  const sid=(f['Current Stage']||[])[0]; const sNum=sid?stageNum(sid):1;
-  const teamIds=f['Assigned Team Members']||[];
-  const dl=daysLeft(f['Project Due Date']);
-  const types=f['Project Type']||[];
-  // Hero — color bg with gradient to off-white
-  const hero=document.getElementById('d-hero');
-  hero.style.background = color;
-  // Tint entire detail screen
-  document.getElementById('s-detail').style.background = color+'0a';
-  document.getElementById('d-job').textContent = '#'+(f['Job Number']||'—');
-  const bgNum = document.getElementById('d-hero-bg-num');
-  if (bgNum) bgNum.textContent = f['Job Number']||'';
-  document.getElementById('d-status').textContent = f['Status']||'—';
-  const svEl = document.getElementById('dm-status-val'); if(svEl) svEl.textContent = f['Status']||'—';
-  document.getElementById('d-title').textContent = f['Project Name']||'—';
-  document.getElementById('d-client').textContent = cid?clientName(cid):'—';
-  document.getElementById('d-stage').textContent = (sid?stageName(sid):'—')+' Phase';
-  document.getElementById('d-tags').innerHTML = types.map(t=>`<div class="hero-tag">${t}</div>`).join('');
-  // Meta
-  document.getElementById('dm-stage').textContent = sid?stageName(sid):'—';
-  document.getElementById('dm-start').textContent = fmtDate(f['Start Date']);
-  document.getElementById('dm-due').textContent = fmtDate(f['Project Due Date']);
-  const dlEl=document.getElementById('dm-left');
-  dlEl.textContent = dl===null?'' : dl<0?Math.abs(dl)+' days overdue' : dl===0?'Due today' : dl+' days left';
-  dlEl.style.color = dl!==null&&dl<0?'#C03A10':'var(--mid)';
-  document.getElementById('dm-job').textContent = f['Job Number']||'—';
-  document.getElementById('dm-team').textContent = teamIds.length||'—';
-  // Brief
-  document.getElementById('d-brief').textContent = `${f['Project Name']} — ${types.join(', ')||'project'} for ${cid?clientName(cid):'client'}. Status: ${f['Status']||'—'}. Stage: ${sid?stageName(sid):'—'}.`;
-  document.getElementById('d-cn').innerHTML = ['Typography and layout approach','Grid system and spacing','Texture and material direction','Motion principles'].map(t=>`<div class="brief-item">${t}</div>`).join('');
-  document.getElementById('d-an').innerHTML = ['Color palette and usage','Photography / image style','Key creative references','Delivery formats'].map(t=>`<div class="brief-item">${t}</div>`).join('');
-  // Timeline
-  [2,3,4].forEach(i => {
-    const dot=document.getElementById('tld'+i);
-    const tag=document.getElementById('tlt'+i);
-    const isDone=sNum>i, isNow=sNum===i;
-    if (dot) { dot.className='tl-dot'+(isDone?' done':isNow?' now':''); if (isNow) { dot.style.borderColor=color; } else { dot.style.borderColor=''; } }
-    if (tag) { tag.style.background=isDone?'var(--off-black)':isNow?color:'var(--fainer)'; tag.style.color=isDone||isNow?'#fff':'var(--mid)'; tag.textContent=isDone?'Complete':isNow?'In Progress':'Upcoming'; }
-    const dateEl=document.getElementById('tl-'+i);
-    if (dateEl) dateEl.textContent = fmtDate(i===2?f['Start Date']:f['Project Due Date']);
-  });
-  document.getElementById('tl-s').textContent = fmtDate(f['Start Date']);
-  // Tasks
-  const dTasksList=document.getElementById('d-tasks-list');
-  if (dTasksList) dTasksList.innerHTML = ['Review latest deliverables','Update project status','Schedule client review call','Prepare reference assets','Confirm brief details'].map((t,i)=>`<div class="task-row"><div class="task-box${i>2?' done':''}"></div><div class="task-name" style="${i>2?'color:var(--mid);text-decoration:line-through':''}">${t}</div><div class="task-due${i===0?' late':''}">${fmtDate(f['Project Due Date'])}</div></div>`).join('');
-  // Progress ring
-  const pct=Math.round((sNum/6)*100);
-  const circ=Math.round(125.7*(1-pct/100));
-  const ring=document.getElementById('prog-ring');
-  ring.style.stroke=color; ring.style.strokeDashoffset=circ;
-  document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('pb1').style.width=pct+'%'; document.getElementById('pb1').style.background=color;
-  document.getElementById('pv1').textContent='Stage '+sNum+'/6';
-  const tl=dl!==null?Math.max(0,Math.min(100,Math.round((1-dl/90)*100))):50;
-  document.getElementById('pb2').style.width=tl+'%'; document.getElementById('pv2').textContent=dl!==null?dl+'d left':'—';
-  // Team
-  const avColors=['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832'];
-  const tl2=document.getElementById('d-team-list');
-  if (tl2) tl2.innerHTML = teamIds.map((tid,i)=>`<div class="team-row-d"><div class="tm-av" style="background:${avColors[i%avColors.length]}">${teamInit(tid)}</div><div style="flex:1"><div class="tm-name">${teamFullName(tid)}</div><div class="tm-role">${teamRole(tid)}</div></div></div>`).join('') || '<div style="padding:12px 16px;font-size:9px;color:var(--mid)">No team assigned</div>';
-  // Airtable link
-  document.getElementById('d-at-link').onclick=()=>window.open(`https://airtable.com/${BASE}/${T.projects}/${id}`,'_blank');
-  const rawF=document.getElementById('d-raw-fields');
-  if (rawF) rawF.innerHTML = ['Job Number','Status','Project Due Date','Start Date','Project Type'].map(k=>{
-    const v=f[k]; const display=Array.isArray(v)?v.join(', '):(v||'—');
-    return `<div style="display:flex;justify-content:space-between;font-size:8px;padding:3px 0;border-bottom:1px solid var(--fainer)"><span style="color:var(--mid);font-family:var(--mono)">${k}</span><span style="font-family:var(--mono);font-weight:700">${display}</span></div>`;
-  }).join('');
-  // Presentations badge
-  const presCount=reviewsForProject(id).length;
-  const presTab=document.getElementById('tab-pres');
-  if (presTab) presTab.innerHTML = presCount ? `Presentations <span class="pres-badge">${presCount}</span>` : 'Presentations';
-  dTab(null,'tp-brief');
-  document.querySelectorAll('.d-tab').forEach((t,i)=>t.classList.toggle('on',i===0));
-  renderBrief(p);
-  renderAssets(p);
-  renderBrief(p);
-  navTo('detail');
-  // Project color runs through the whole screen
-  const _topbar = document.querySelector('.topbar');
-  if (_topbar) _topbar.style.borderBottom = `3px solid ${color}`;
-  const _right = document.querySelector('#s-detail .detail-right');
-  if (_right) _right.style.background = color+'0d';
-  const _tabs = document.querySelector('#s-detail .detail-tabs');
-  if (_tabs) _tabs.style.borderBottom = `2px solid ${color}40`;
-  const bcLbl=document.getElementById('bc-lbl');
-  if (bcLbl) bcLbl.textContent=f['Project Name']||'Project';
-  // Navigate to detail screen
-  console.log('MELT OS: openProject navigating to detail:', id);
+  const cid     = (f['Client']||[])[0];
+  const color   = cid ? clientColor(cid) : '#888';
+  const sid     = (f['Current Stage']||[])[0];
+  const sNum    = sid ? stageNum(sid) : 1;
+  const teamIds = f['Assigned Team Members'] || [];
+  const dl      = daysLeft(f['Project Due Date']);
+  const types   = f['Project Type'] || [];
+
+  // ── HERO ──
+  const hero = document.getElementById('d-hero');
+  if (hero) hero.style.background = color;
+
+  const heroTitle = document.getElementById('d-title');
+  if (heroTitle) heroTitle.textContent = f['Project Name'] || '—';
+
+  const heroSub = document.getElementById('d-hero-sub');
+  if (heroSub) heroSub.textContent = [cid ? clientName(cid) : null, types[0]].filter(Boolean).join('  ·  ');
+
+  const heroType = document.getElementById('d-type');
+  if (heroType) { heroType.textContent = types[0] || ''; heroType.style.display = types[0] ? '' : 'none'; }
+
+  const heroBg = document.getElementById('d-hero-bg-num');
+  if (heroBg) heroBg.textContent = f['Job Number'] || '';
+
+  const heroStatus = document.getElementById('d-status');
+  if (heroStatus) heroStatus.textContent = f['Status'] || '';
+
+  // ── META BAR ──
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('dm-stage',      sid ? stageName(sid) : '—');
+  setEl('dm-status-val', f['Status'] || '—');
+  setEl('dm-start',      fmtDate(f['Start Date']));
+  setEl('dm-due',        fmtDate(f['Project Due Date']));
+  setEl('dm-job',        f['Job Number'] || '—');
+  setEl('dm-team',       teamIds.length || '—');
+
+  // Due overdue indicator
+  const dueEl = document.getElementById('dm-left');
+  if (dueEl) {
+    dueEl.textContent = dl === null ? '' : dl < 0 ? `${Math.abs(dl)}d overdue` : dl === 0 ? 'Today' : dl === 1 ? 'Tomorrow' : `${dl}d left`;
+    dueEl.style.color = dl !== null && dl < 0 ? '#C03A10' : dl !== null && dl <= 3 ? '#C8A84B' : 'var(--mid)';
+  }
+
+  // ── PROGRESS / RIGHT PANEL ──
+  const pct = Math.round(sNum / 6 * 100);
+  const progFill = document.getElementById('d-prog-fill');
+  const progPct  = document.getElementById('d-prog-pct');
+  if (progFill) progFill.style.width = pct + '%';
+  if (progPct)  progPct.textContent  = pct + '%';
+
+  // Stage dots
+  for (let i = 1; i <= 6; i++) {
+    const dot = document.getElementById('sd' + i);
+    if (dot) {
+      dot.style.background = i <= sNum ? color : 'var(--fainer)';
+      dot.style.transform  = i === sNum ? 'scale(1.3)' : 'scale(1)';
+    }
+  }
+
+  // ── TEAM AVATARS in right panel ──
+  const avWrap = document.getElementById('d-team-avs');
+  if (avWrap) {
+    const avColors = ['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832','#9B5FD4','#D45A7A'];
+    avWrap.innerHTML = teamIds.map((tid, i) => {
+      const init = teamInit(tid);
+      const col  = avColors[i % avColors.length];
+      return `<div onclick="openMember('${tid}')" style="width:28px;height:28px;border-radius:5px;background:${col};color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="${teamName(tid)}">${init}</div>`;
+    }).join('');
+  }
+
+  // ── AIRTABLE LINK ──
+  const atLink = document.getElementById('d-at-link');
+  if (atLink) atLink.onclick = () => window.open(`https://airtable.com/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${id}`, '_blank');
+
+  // ── TOPBAR breadcrumb + color accent ──
+  const bcLbl = document.getElementById('bc-lbl');
+  if (bcLbl) bcLbl.textContent = f['Project Name'] || 'Project';
+  const topbarEl = document.querySelector('.topbar');
+  if (topbarEl) topbarEl.style.borderBottom = `3px solid ${color}`;
+
+  // ── PAGE TINT ──
+  const detailEl = document.getElementById('s-detail');
+  if (detailEl) detailEl.style.background = color + '08';
+  const rightEl = document.querySelector('#s-detail .detail-right');
+  if (rightEl) rightEl.style.background = color + '0d';
+  const tabsEl = document.querySelector('#s-detail .detail-tabs');
+  if (tabsEl) tabsEl.style.borderBottom = `2px solid ${color}40`;
+  const leftBorder = document.querySelector('#s-detail .detail-left');
+  if (leftBorder) leftBorder.style.borderTop = `2px solid ${color}40`;
+
+  // ── RESET TABS ──
+  dTab(null, 'tp-brief');
+  document.querySelectorAll('.d-tab').forEach((t, i) => t.classList.toggle('on', i === 0));
+
+  // ── NAVIGATE & RENDER ──
   navTo('detail');
   renderBrief(p);
   renderAssets(p);
 }
+
 
 function dTab(el, panelId) {
   document.querySelectorAll('.d-tab').forEach(t => {
