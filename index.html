@@ -533,7 +533,7 @@ body {
 .card-banner::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.32));
+  background: transparent;
   pointer-events: none;
 }
 .card-job {
@@ -1496,6 +1496,18 @@ body {
 .empty-icon { font-size: 28px; opacity: .2; }
 .empty-title { font-family: var(--sans); font-size: 16px; font-weight: 300; color: var(--mid); }
 .empty-sub { font-size: 9px; color: var(--faint); max-width: 220px; line-height: 1.65; }
+
+/* Inline editable brief fields */
+.brief-editable {
+  display: block; min-height: 24px;
+  border-radius: 6px; padding: 4px 8px; margin: -4px -8px;
+  transition: background .12s;
+  outline: none; cursor: text;
+}
+.brief-editable:hover { background: var(--fainer); }
+.brief-editable:focus { background: #fff; box-shadow: 0 0 0 1.5px var(--off-black); cursor: text; }
+.brief-editable:empty::before { content: attr(data-placeholder); color: var(--faint); }
+
 </style>
 </head>
 <body>
@@ -1695,17 +1707,17 @@ body {
               <!-- Kickoff Notes -->
               <div id="d-kickoff-wrap" style="margin-bottom:24px;display:none">
                 <div class="brief-col-hd">Project Kickoff Notes</div>
-                <div id="d-kickoff" style="font-size:10px;color:var(--mid);line-height:1.8;margin-top:8px;white-space:pre-wrap"></div>
+                <div id="d-kickoff" class="brief-editable" contenteditable="true" data-field="Project Kickoff Notes" data-placeholder="Add project kickoff notes..." style="font-size:10px;color:var(--off-black);line-height:1.8;margin-top:8px" onblur="saveBriefField(this)"></div>
               </div>
               <!-- Tone + Art Direction grid -->
               <div class="brief-grid">
                 <div>
                   <div class="brief-col-hd">Tone</div>
-                  <div id="d-tone" style="font-size:10px;color:var(--mid);line-height:1.7;margin-top:6px">—</div>
+                  <div id="d-tone" class="brief-editable" contenteditable="true" data-field="Tone" data-placeholder="Add tone & mood..." style="font-size:10px;color:var(--off-black);line-height:1.7;margin-top:6px" onblur="saveBriefField(this)"></div>
                 </div>
                 <div>
                   <div class="brief-col-hd">Art Direction</div>
-                  <div id="d-art" style="font-size:10px;color:var(--mid);line-height:1.7;margin-top:6px">—</div>
+                  <div id="d-art" class="brief-editable" contenteditable="true" data-field="Art Direction Notes" data-placeholder="Add art direction..." style="font-size:10px;color:var(--off-black);line-height:1.7;margin-top:6px" onblur="saveBriefField(this)"></div>
                 </div>
               </div>
               <!-- Copy Direction -->
@@ -2622,6 +2634,8 @@ function openProject(id) {
   dTab(null,'tp-brief');
   document.querySelectorAll('.d-tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   renderBrief(p);
+  renderAssets(p);
+  renderBrief(p);
   navTo('detail');
   // Project color runs through the whole screen
   const _topbar = document.querySelector('.topbar');
@@ -2651,6 +2665,33 @@ function dTab(el, panelId) {
   const panel=document.getElementById(panelId);
   if (panel) panel.classList.add('on');
   if (panelId==='tp-presentations') renderPresentations(currentProject?.id);
+}
+
+
+// ─── INLINE BRIEF SAVE ────────────────────────────────────
+async function saveBriefField(el) {
+  if (!currentProject) return;
+  const field = el.dataset.field;
+  const value = el.innerText.trim();
+  if (!field || value === currentProject.fields[field]) return;
+
+  el.style.opacity = '.5';
+  try {
+    const AT = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+    await fetch(
+      `https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${currentProject.id}`,
+      { method:'PATCH', headers:{'Authorization':'Bearer '+AT,'Content-Type':'application/json'},
+        body: JSON.stringify({fields:{[field]:value}}) }
+    );
+    currentProject.fields[field] = value;
+    el.style.opacity = '1';
+    // Flash green border briefly
+    el.style.boxShadow = '0 0 0 1.5px #3D9B6B';
+    setTimeout(() => { el.style.boxShadow = ''; }, 1200);
+  } catch(e) {
+    el.style.opacity = '1';
+    console.error('Save failed:', e);
+  }
 }
 
 // ─── BRIEF ────────────────────────────────────────────────
