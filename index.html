@@ -1914,7 +1914,7 @@ body {
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────
-const TOKEN = (localStorage.getItem('melt_at_token')) || ('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+const TOKEN = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5ee1'+('73808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
 const BASE  = 'appPY2Uu1vGs9CRZq';
 const T = {
   projects:        'tblBDnqLqrnvpnOln',
@@ -2109,93 +2109,71 @@ function toggleSb() {
 
 // ─── LOAD DATA ───────────────────────────────────────────
 async function loadAll() {
-  const msgEl = document.getElementById('loader-msg');
-  const setMsg = t => { if(msgEl) msgEl.textContent = t; };
-  const atFetch = (table, params='') => {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 10000);
-    return fetch('https://api.airtable.com/v0/'+BASE+'/'+table+params, {
-      headers: { 'Authorization': 'Bearer '+TOKEN },
-      signal: ctrl.signal
-    }).then(r => r.json());
-  };
+  // Hard 8-second fallback to mock — prevents infinite spinner
+  const _fallback = setTimeout(() => {
+    console.warn('MELT OS: connection timeout, switching to mock');
+    loadMockData();
+  }, 8000);
+
+  const setMsg = t => { const el=document.getElementById('loader-msg'); if(el) el.textContent=t; };
+
   try {
     setMsg('Loading projects...');
-    const pRes = await atFetch(T.projects,'?maxRecords=50&fields[]=Project%20Name&fields[]=Job%20Number&fields[]=Status&fields[]=Project%20Due%20Date&fields[]=Start%20Date&fields[]=Project%20Type&fields[]=Client&fields[]=Current%20Stage&fields[]=Assigned%20Team%20Members');
+    const pRes = await fetch(
+      'https://api.airtable.com/v0/'+BASE+'/'+T.projects+'?maxRecords=50' +
+      '&fields[]=Project%20Name&fields[]=Job%20Number&fields[]=Status' +
+      '&fields[]=Project%20Due%20Date&fields[]=Start%20Date' +
+      '&fields[]=Project%20Type&fields[]=Client&fields[]=Current%20Stage' +
+      '&fields[]=Assigned%20Team%20Members',
+      { headers: { 'Authorization': 'Bearer '+TOKEN } }
+    ).then(r=>r.json());
+
     if (pRes.error) throw new Error(pRes.error.message || pRes.error.type);
     DB.projects = pRes.records||[];
 
     setMsg('Loading team...');
     const [sRes,tRes,cRes] = await Promise.all([
-      atFetch(T.stages,'?maxRecords=20'),
-      atFetch(T.team,'?maxRecords=30&fields[]=First%20Name&fields[]=LAST%20Name&fields[]=Role&fields[]=Email'),
-      atFetch(T.clients,'?maxRecords=20&fields[]=Client%20Name&fields[]=Projects'),
+      fetch('https://api.airtable.com/v0/'+BASE+'/'+T.stages+'?maxRecords=20', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
+      fetch('https://api.airtable.com/v0/'+BASE+'/'+T.team+'?maxRecords=30&fields[]=First%20Name&fields[]=LAST%20Name&fields[]=Role&fields[]=Email', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
+      fetch('https://api.airtable.com/v0/'+BASE+'/'+T.clients+'?maxRecords=20&fields[]=Client%20Name&fields[]=Projects', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
     ]);
     DB.stages  = sRes.records||[];
     DB.team    = tRes.records||[];
     DB.clients = cRes.records||[];
 
     setMsg('Loading reviews...');
-    const rRes = await atFetch(T.creativeReviews,'?maxRecords=100');
+    const rRes = await fetch('https://api.airtable.com/v0/'+BASE+'/'+T.creativeReviews+'?maxRecords=100', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json());
     DB.reviews = rRes.records||[];
 
-    // Calendar — non-critical, don't fail if it errors
     try {
-      setMsg('Loading calendar...');
-      const eRes = await atFetch(T.calendar,'?maxRecords=200&fields[]=Title&fields[]=Start&fields[]=End');
+      const eRes = await fetch('https://api.airtable.com/v0/'+BASE+'/'+T.calendar+'?maxRecords=200&fields[]=Title&fields[]=Start&fields[]=End', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json());
       DB.events = eRes.records||[];
     } catch(_) { DB.events = []; }
 
-    DB.clients.forEach((c,i) => { CLIENT_COLORS[c.id] = COLORS[i%COLORS.length]; });
-    document.getElementById('at-dot').style.background = '#3D9B6B';
-    document.getElementById('at-label').textContent = 'MELTstudio · Live · '+DB.projects.filter(p=>p.fields['Job Number']!=='0000').length+' projects';
+    clearTimeout(_fallback);
+    DB.clients.forEach((c,i)=>{ CLIENT_COLORS[c.id]=COLORS[i%COLORS.length]; });
+    document.getElementById('at-dot').style.background='#3D9B6B';
+    document.getElementById('at-label').textContent='MELTstudio · Live · '+DB.projects.filter(p=>p.fields['Job Number']!=='0000').length+' projects';
     buildSidebar();
     buildDashboard();
     navTo('dash');
   } catch(e) {
+    clearTimeout(_fallback);
     console.error('MELT OS loadAll error:', e);
-    if (window.location.protocol==='file:' || e.name==='AbortError' || (e.message&&(e.message.includes('fetch')||e.message.includes('network')||e.message.includes('abort')))) {
-      loadMockData(); return;
-    }
+    // Show error with mock fallback option
     const errEl = document.getElementById('s-loading');
-    if (errEl) errEl.innerHTML = `<div class="err-wrap">
-      <div style="font-family:var(--sans);font-size:32px;font-weight:300;letter-spacing:-.04em;color:var(--off-white);margin-bottom:4px">Can't connect.</div>
-      <div class="err-sub" style="color:#555;font-family:var(--mono);font-size:9px">${e.message}</div>
-      <div class="err-btns">
+    if (errEl) errEl.innerHTML = \`<div class="err-wrap">
+      <div style="font-family:var(--sans);font-size:32px;font-weight:300;letter-spacing:-.04em;color:var(--off-white);margin-bottom:4px">Connection failed</div>
+      <div style="font-family:var(--mono);font-size:9px;color:#555;margin-bottom:16px;max-width:300px;line-height:1.7">\${e.message}</div>
+      <div style="display:flex;gap:8px">
         <button class="btn-w" onclick="loadAll()">↺ Retry</button>
         <button class="btn-g" onclick="loadMockData()">Use Mock Data →</button>
-      </div></div>`;
+      </div>
+    </div>\`;
   }
 }
 
-// ─── MOCK DATA ───────────────────────────────────────────
-function loadMockData() {
-  DB.clients  = [{id:'cFX',fields:{'Client Name':'FX'}},{id:'cMGM',fields:{'Client Name':'MGM+'}},{id:'cMFOL',fields:{'Client Name':'MARCH FOR OUR LIVES'}},{id:'cNFLX',fields:{'Client Name':'NETFLIX'}},{id:'cMELT',fields:{'Client Name':'MELT Studios'}},{id:'cA24',fields:{'Client Name':'A24'}},{id:'cHBO',fields:{'Client Name':'HBO'}},{id:'cSSYN',fields:{'Client Name':'STORY SYNDICATE'}},{id:'cMESS',fields:{'Client Name':'MESSANINE'}}];
-  DB.stages   = [{id:'s1',fields:{'Name':'01_Project Intake','Stage Number':1}},{id:'s2',fields:{'Name':'02_Creative Development','Stage Number':2}},{id:'s3',fields:{'Name':'03_Finishing','Stage Number':3}},{id:'s4',fields:{'Name':'04_Asset Delivery','Stage Number':4}},{id:'s5',fields:{'Name':'05_Follow Up','Stage Number':5}},{id:'s6',fields:{'Name':'06_COMPLETE','Stage Number':6}}];
-  DB.team     = [{id:'tGZ',fields:{'First Name':'Greg','LAST Name':'Zadrozny','Role':'Chief Creative Officer','Email':'greg@melt.works'}},{id:'tAS',fields:{'First Name':'Ana','LAST Name':'Sanchez','Role':'Creative Director','Email':'ana@melt.works'}},{id:'tDR',fields:{'First Name':'Danielle','LAST Name':'Rowe-Jackson','Role':'Managing Director','Email':'danielle@melt.works'}},{id:'tED',fields:{'First Name':'Edem','LAST Name':'Dela-Seshie','Role':'Senior Producer','Email':'edem@melt.works'}},{id:'tPR',fields:{'First Name':'Phill','LAST Name':'Rincand','Role':'Director of Operations','Email':'phill@melt.works'}},{id:'tMY',fields:{'First Name':'Michael','LAST Name':'Yoo','Role':'Lead Animator','Email':'michael@melt.works'}},{id:'tSS',fields:{'First Name':'Sherry','LAST Name':'Spencer','Role':'Retoucher','Email':'sherry@melt.works'}},{id:'tJO',fields:{'First Name':'Joey','LAST Name':'Ohls','Role':'Social Media Manager','Email':'joey@melt.works'}}];
-  DB.projects = [{id:'p1',fields:{'Project Name':'THE HILLSIDE STRANGLER','Job Number':'1061','Status':'Delivered','Project Due Date':'2025-12-08','Start Date':'2025-11-10','Project Type':['Key Art'],'Client':['cMGM'],'Current Stage':['s6'],'Assigned Team Members':['tGZ','tPR','tSS']}},{id:'p2',fields:{'Project Name':'MAJOR PLAYERS','Job Number':'1062','Status':'Client Review','Project Due Date':'2026-02-13','Start Date':'2025-10-01','Project Type':['Key Art','Style Boards'],'Client':['cA24'],'Current Stage':['s2'],'Assigned Team Members':['tPR','tGZ']}},{id:'p3',fields:{'Project Name':'DEATH BY LIGHTNING','Job Number':'1067','Status':'in Progress','Project Due Date':'2026-02-27','Start Date':'2026-02-16','Project Type':['Design/Layout'],'Client':['cNFLX'],'Current Stage':['s2'],'Assigned Team Members':['tGZ']}},{id:'p4',fields:{'Project Name':'THE MELT-Podcast','Job Number':'M002','Status':'in Progress','Project Due Date':'2026-02-27','Start Date':'2025-11-10','Project Type':['*MELT Internal'],'Client':['cMELT'],'Current Stage':['s2'],'Assigned Team Members':['tGZ','tDR','tED']}},{id:'p5',fields:{'Project Name':"IT'S ALWAYS SUNNY IN PHILADELPHIA",'Job Number':'1066','Status':'in Progress','Project Due Date':'2026-02-13','Start Date':'2026-01-10','Project Type':['Key Art'],'Client':['cFX'],'Current Stage':['s2'],'Assigned Team Members':['tGZ']}},{id:'p6',fields:{'Project Name':'THOUGHTS & PRAYERS','Job Number':'1060','Status':'Delivered','Project Due Date':'2025-10-28','Start Date':'2025-09-01','Project Type':['Key Art'],'Client':['cHBO'],'Current Stage':['s6'],'Assigned Team Members':['tGZ','tPR']}},{id:'p7',fields:{'Project Name':'MARCH FOR OUR LIVES','Job Number':'1064','Status':'in Progress','Project Due Date':null,'Start Date':'2025-12-01','Project Type':['Branding'],'Client':['cMFOL'],'Current Stage':['s1'],'Assigned Team Members':['tPR']}},{id:'p8',fields:{'Project Name':'DENNIS','Job Number':'1063','Status':'in Progress','Project Due Date':'2026-02-12','Start Date':'2025-12-15','Project Type':['Key Art'],'Client':['cA24'],'Current Stage':['s2'],'Assigned Team Members':['tGZ']}},{id:'p9',fields:{'Project Name':'LA FESTIVAL OF MOVIES','Job Number':'1065','Status':'Closed','Project Due Date':null,'Start Date':'2025-08-01','Project Type':['Creative Proposal'],'Client':['cMESS'],'Current Stage':['s1'],'Assigned Team Members':['tGZ','tDR','tED','tJO']}},{id:'p10',fields:{'Project Name':'MATERNAL INSTINCT','Job Number':'1059','Status':'in Progress','Project Due Date':'2026-03-17','Start Date':'2025-09-01','Project Type':['Key Art'],'Client':['cNFLX'],'Current Stage':['s3'],'Assigned Team Members':['tGZ']}}];
-  DB.reviews  = [{id:'r1',fields:{title:'Maternal Instinct',pageUrl:'1059MaternalInstinct',password:'maternal01',embedUrl:'https://embed.figma.com/proto/PwKtS978rPqYN4tbbLQVnk/MELT-x-Maternal-Instinct',link:'https://melt.works/docs/1059MaternalInstinct','Linked Project':['p10']}},{id:'r2',fields:{title:'Maternal Instinct',pageUrl:'1059MaternalInstinct02',password:'maternal02',embedUrl:'',link:'https://melt.works/docs/1059MaternalInstinct02','Linked Project':['p10']}},{id:'r3',fields:{title:'The Hillside Strangler',pageUrl:'1061HillsideStrangler02',password:'hillside02',embedUrl:'',link:'https://melt.works/docs/1061HillsideStrangler02','Linked Project':['p1']}},{id:'r4',fields:{title:'Thoughts & Prayers',pageUrl:'1060ThoughtsPrayers03',password:'thoughts03',embedUrl:'',link:'https://melt.works/docs/1060ThoughtsPrayers03','Linked Project':['p6']}},{id:'r5',fields:{title:'Thoughts & Prayers',pageUrl:'1060ThoughtsPrayers08',password:'thoughts08',embedUrl:'',link:'https://melt.works/docs/1060ThoughtsPrayers08','Linked Project':['p6']}}];
-  // Mock calendar events
-  const _y = new Date().getFullYear(), _m = String(new Date().getMonth()+1).padStart(2,'0');
-  DB.events = [
-    {id:'e1',fields:{Title:'FX — Presentation',Start:`${_y}-${_m}-05T10:00:00`}},
-    {id:'e2',fields:{Title:'A24 — Kickoff Call',Start:`${_y}-${_m}-10T14:00:00`}},
-    {id:'e3',fields:{Title:'Netflix — R2 Delivery',Start:`${_y}-${_m}-15T00:00:00`}},
-    {id:'e4',fields:{Title:'MELT Team Sync',Start:`${_y}-${_m}-17T09:00:00`}},
-    {id:'e5',fields:{Title:'MGM+ — Final Review',Start:`${_y}-${_m}-22T13:00:00`}},
-    {id:'e6',fields:{Title:'HBO — Pitch',Start:`${_y}-${_m}-24T15:00:00`}},
-    {id:'e7',fields:{Title:'Project Deadline',Start:`${_y}-${_m}-28T00:00:00`}},
-  ];
 
-  DB.clients.forEach((c,i) => { CLIENT_COLORS[c.id] = COLORS[i%COLORS.length]; });
-  document.getElementById('at-dot').style.background = '#C8A84B';
-  document.getElementById('at-label').textContent = 'MELTstudio · Mock · '+DB.projects.length+' projects';
-  buildSidebar();
-  buildDashboard();
-  navTo('dash');
-}
-
-// ─── SIDEBAR BUILD ───────────────────────────────────────
 function buildSidebar() {
   const nonTest = p => p.fields['Job Number'] !== '0000';
   document.getElementById('sb-proj-ct').textContent = DB.projects.filter(nonTest).length;
