@@ -26,6 +26,7 @@
   --ease: cubic-bezier(.16,1,.3,1);
 }
 html { height:100%; }
+body { overflow-x: hidden; }
 body {
   background: var(--off-white);
   color: var(--off-black);
@@ -156,9 +157,8 @@ body {
 .app {
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 52px);
+  min-height: calc(100vh - 52px);
   margin-top: 52px;
-  overflow: hidden;
 }
 
 /* ── SIDEBAR ──────────────────────────────────── */
@@ -288,28 +288,21 @@ body {
 /* ── MAIN ──────────────────────────────────────── */
 .main {
   flex: 1; min-width: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
   display: flex; flex-direction: column;
   position: relative;
 }
-/* Always-visible scrollbar */
-.main::-webkit-scrollbar { width: 6px; }
-.main::-webkit-scrollbar-track { background: transparent; }
-.main::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 99px; }
-.main::-webkit-scrollbar-thumb:hover { background: var(--mid); }
-/* Scrollable left panel in detail */
-.detail-left::-webkit-scrollbar { width: 4px; }
-.detail-left::-webkit-scrollbar-track { background: transparent; }
-.detail-left::-webkit-scrollbar-thumb { background: var(--fainer); border-radius: 99px; }
+/* Page-level scrollbar (body) */
+body::-webkit-scrollbar { width: 6px; }
+body::-webkit-scrollbar-track { background: transparent; }
+body::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 99px; }
+body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 
 /* SCREENS */
 .screen {
   display: none; flex-direction: column;
-  min-height: 100%;
   animation: fadeUp .28s var(--ease) both;
 }
-.screen.active { display: flex; flex: 1; }
+.screen.active { display: flex; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -1010,9 +1003,7 @@ body {
 .detail-body {
   display: grid;
   grid-template-columns: 1fr 260px;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 400px;
 }
 @media (max-width: 800px) {
   .detail-body { grid-template-columns: 1fr; }
@@ -2227,7 +2218,7 @@ function nav(id) {
     el.classList.toggle('active', s===id);
     el.style.display = s===id ? 'flex' : 'none';
   });
-  document.getElementById('main').scrollTop = 0;
+  window.scrollTo(0, 0);
   if (id==='projects') renderProjectsList();
   if (id==='tasks') renderTasksFull();
   if (id==='pipeline') renderPipelineFull();
