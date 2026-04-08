@@ -285,7 +285,7 @@ body {
 /* ── MAIN ──────────────────────────────────────── */
 .main {
   flex: 1; min-width: 0;
-  overflow-y: auto; overflow-x: hidden;
+  overflow: hidden;
   display: flex; flex-direction: column;
   position: relative;
 }
@@ -294,6 +294,7 @@ body {
 .screen {
   display: none; flex-direction: column;
   min-height: 100%;
+  height: 100%;
   animation: fadeUp .28s var(--ease) both;
 }
 .screen.active { display: flex; }
@@ -916,6 +917,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 260px;
   flex: 1; min-height: 0;
+  overflow: hidden;
 }
 @media (max-width: 800px) {
   .detail-body { grid-template-columns: 1fr; }
@@ -1821,7 +1823,7 @@ body {
       <div class="table-head">
         <div class="th">Project</div><div class="th">Client</div><div class="th">Status</div><div class="th">Stage</div><div class="th">Due</div><div class="th">Team</div>
       </div>
-      <div style="overflow-y:auto;flex:1"><div id="proj-list-rows"></div></div>
+      <div style="overflow-y:auto;flex:1;min-height:0"><div id="proj-list-rows"></div></div>
     </div>
 
     <!-- TASKS -->
@@ -2187,7 +2189,7 @@ async function loadAll() {
   const _fallback = setTimeout(() => {
     console.warn('MELT OS: connection timeout, switching to mock');
     loadMockData();
-  }, 3000);
+  }, 8000);
 
   const setMsg = t => { const el=document.getElementById('loader-msg'); if(el) el.textContent=t; };
 
@@ -2208,7 +2210,7 @@ async function loadAll() {
     setMsg('Loading team...');
     const [sRes,tRes,cRes] = await Promise.all([
       fetch('https://api.airtable.com/v0/'+BASE+'/'+T.stages+'?maxRecords=20', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
-      fetch('https://api.airtable.com/v0/'+BASE+'/'+T.team+'?maxRecords=30&fields[]=First%20Name&fields[]=LAST%20Name&fields[]=Role&fields[]=Email', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
+      fetch('https://api.airtable.com/v0/'+BASE+'/'+T.team+'?maxRecords=30', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
       fetch('https://api.airtable.com/v0/'+BASE+'/'+T.clients+'?maxRecords=20&fields[]=Client%20Name&fields[]=Projects', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json()),
     ]);
     DB.stages  = sRes.records||[];
