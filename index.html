@@ -515,6 +515,7 @@ body {
   position: relative;
 }
 .proj-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(22,20,18,.14); z-index: 2; }
+.proj-card.overdue { border-left: 3px solid #C03A10; }
 .proj-card:nth-child(3n) { border-right: none; }
 @media (max-width: 1100px) {
   .proj-card:nth-child(2n) { border-right: none; }
@@ -2434,7 +2435,8 @@ function buildDashboard() {
   const hour = new Date().getHours();
   document.getElementById('g-name').textContent = (hour<12?'Good morning.':hour<17?'Good afternoon.':'Good evening.');
   const activeN = projs.filter(p => ['in Progress','Active'].includes(p.fields['Status'])).length;
-  document.getElementById('g-sub').textContent = `${projs.length} projects · ${activeN} active · ${DB.clients.length} clients`;
+  const uniqueClientIds = [...new Set(projs.filter(p=>!['Delivered','Closed'].includes(p.fields['Status'])).flatMap(p=>p.fields['Client']||[]))];
+  document.getElementById('g-sub').textContent = `${activeN} active · ${review} in review · ${DB.clients.length} clients`;
   document.getElementById('gs-active').textContent = active;
   document.getElementById('gs-review').textContent = review;
   document.getElementById('gs-total').textContent = projs.length;
@@ -2446,7 +2448,9 @@ function buildDashboard() {
   document.getElementById('g-alerts').innerHTML = alerts.join('');
   const now = new Date();
   const weekNum = Math.ceil(((now - new Date(now.getFullYear(),0,1))/86400000 + new Date(now.getFullYear(),0,1).getDay()+1)/7);
-  document.getElementById('ws-label').textContent = `Week ${weekNum} · Q${Math.ceil((now.getMonth()+1)/3)} ${now.getFullYear()}`;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('ws-label').textContent = `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()} · Week ${weekNum}`;
   const WDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const today = (now.getDay()+6)%7;
   document.getElementById('wdays').innerHTML = WDAYS.map((d,i) => {
@@ -2456,6 +2460,16 @@ function buildDashboard() {
     const pipColor = i<5 ? (isToday?'#3D9B6B':'#333') : 'transparent';
     return `<div class="week-day"><div class="wd-name">${d}</div><div class="wd-num${isToday?' today':''}">${dt.getDate()}</div><div class="wd-pip" style="background:${pipColor};border-radius:50%"></div></div>`;
   }).join('');
+  // Update filter chips with counts
+  const allN = projs.length;
+  const inProgN = projs.filter(p=>['in Progress','Active'].includes(p.fields['Status'])).length;
+  const revN = projs.filter(p=>p.fields['Status']==='Client Review').length;
+  const delN = projs.filter(p=>p.fields['Status']==='Delivered').length;
+  const chipCounts = document.querySelectorAll('.filter-count');
+  if (chipCounts.length) {
+    const counts = [allN, inProgN, revN, delN];
+    chipCounts.forEach((el,i) => { if(counts[i]!==undefined) el.textContent = counts[i]; });
+  }
   document.getElementById('proj-ct').textContent = projs.length+' projects';
   renderProjects('all');
   buildDueStrip();
@@ -2474,43 +2488,65 @@ function renderProjects(filter) {
   const nonTest = p => p.fields['Job Number'] !== '0000';
   let projs = DB.projects.filter(nonTest);
   if (filter!=='all') projs = projs.filter(p=>p.fields['Status']===filter);
-  const order={'in Progress':0,'Client Review':1,'Pending Brief':2,'Delivered':3,'Closed':4};
+  const order={'in Progress':0,'Active':0,'Client Review':1,'Pending Brief':2,'Delivered':3,'Closed':4};
   projs.sort((a,b)=>(order[a.fields['Status']]||5)-(order[b.fields['Status']]||5));
-  const take = Math.min(projs.length, 5);
+  const take = Math.min(projs.length, 6);
   const grid = document.getElementById('proj-grid');
   if (!grid) return;
-  let html = projs.slice(0,take).map(p => {
-    const f=p.fields;
-    const cid=(f['Client']||[])[0]; const color=cid?clientColor(cid):'#888';
-    const cName=cid?clientName(cid):'—';
-    const sid=(f['Current Stage']||[])[0]; const sName=sid?stageName(sid):'—';
-    const due=fmtDate(f['Project Due Date']); const dl=daysLeft(f['Project Due Date']);
-    const types=(f['Project Type']||[]);
-    const teamIds=(f['Assigned Team Members']||[]).slice(0,3);
-    const avColors=['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832'];
+
+  const statusDot = s => {
+    const c = s==='in Progress'?'#3D9B6B':s==='Client Review'?'#C8A84B':s==='Pending Brief'?'#4ABFCC':s==='Delivered'?'#4A7FD6':'#888';
+    return `<div style="width:6px;height:6px;border-radius:50%;background:${c};flex-shrink:0"></div>`;
+  };
+
+  let cards = projs.slice(0,take).map(p => {
+    const f = p.fields;
+    const cid  = (f['Client']||[])[0];
+    const color = cid ? clientColor(cid) : '#888';
+    const cName = cid ? clientName(cid) : '—';
+    const sid  = (f['Current Stage']||[])[0];
+    const sName = sid ? stageName(sid) : '—';
+    const due  = fmtDate(f['Project Due Date']);
+    const dl   = daysLeft(f['Project Due Date']);
+    const isOverdue = dl!==null && dl<0 && !['Delivered','Closed'].includes(f['Status']);
+    const types = (f['Project Type']||[]);
+    const teamIds = (f['Assigned Team Members']||[]).slice(0,3);
+    const avColors = ['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832'];
+    const stN = Math.round((sid?stageNum(sid):1)/6*100);
+    const dueLabel = dl===null ? '—' : dl<0 ? `${Math.abs(dl)}d overdue` : dl===0 ? 'Today' : dl===1 ? 'Tomorrow' : due;
+    const dueColor = isOverdue ? '#C03A10' : dl===0||dl===1 ? '#C8A84B' : 'var(--mid)';
+
     return `<div class="proj-card" onclick="openProject('${p.id}')">
       <div class="card-banner" style="background:${color}">
-        <div class="card-job">#${f['Job Number']||'—'}</div>
-        <div class="card-tags">${types.map(t=>`<div class="card-tag">${t}</div>`).join('')}</div>
-        <div class="card-status">${f['Status']||'—'}</div>
+        <div class="card-job" style="position:absolute;right:14px;top:12px;font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.08em">#${f['Job Number']||'—'}</div>
+        <div class="card-tags">${types.slice(0,1).map(t=>`<div class="card-tag">${t}</div>`).join('')}</div>
         <div class="card-title">${f['Project Name']||'—'}</div>
-        <div class="card-client">${cName}</div>
+        <div class="card-client" style="opacity:.55">${cName}</div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(0,0,0,.15)">
-          <div style="height:100%;background:rgba(255,255,255,.5);width:${Math.round((sid?stageNum(sid):1)/6*100)}%"></div>
+          <div style="height:100%;background:rgba(255,255,255,.5);width:${stN}%"></div>
         </div>
       </div>
       <div class="card-foot">
         <div class="card-meta">
-          <div class="card-mi"><div class="card-ml">Stage</div><div class="card-mv">${sName}</div></div>
-          <div class="card-mi"><div class="card-ml">Due</div><div class="card-mv" style="${dl!==null&&dl<0?'color:#C03A10':''}">${due}</div></div>
-          <div class="card-mi"><div class="card-ml">Team</div><div class="card-mv">${(f['Assigned Team Members']||[]).length||'—'}</div></div>
+          <div class="card-mi">
+            <div class="card-ml">Status</div>
+            <div class="card-mv" style="display:flex;align-items:center;gap:4px">${statusDot(f['Status'])}<span>${f['Status']||'—'}</span></div>
+          </div>
+          <div class="card-mi">
+            <div class="card-ml">Due</div>
+            <div class="card-mv" style="color:${dueColor};font-weight:${isOverdue?'700':'400'}">${dueLabel}</div>
+          </div>
         </div>
         <div class="card-avs">${teamIds.map((id,i)=>`<div class="card-av" style="background:${avColors[i%avColors.length]}">${teamInit(id)}</div>`).join('')}</div>
       </div>
     </div>`;
   }).join('');
-  html += `<div class="proj-card card-new" onclick="navTo('form')"><div class="card-new-icon">+</div><div class="card-new-label">New Project</div></div>`;
-  grid.innerHTML = html;
+
+  cards += `<div class="proj-card card-new" onclick="navTo('form')">
+    <div class="card-new-icon">+</div>
+    <div class="card-new-label">New Project</div>
+  </div>`;
+  grid.innerHTML = cards;
 }
 
 function renderTasks() {
