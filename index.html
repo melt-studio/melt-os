@@ -7,6 +7,18 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELT OS</title>
+  <!-- PWA / Add to Home Screen -->
+  <meta name="theme-color" content="#181614">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MELT OS">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="MELT OS">
+  <link rel="manifest" href="/melt-os/manifest.json">
+  <!-- Apple touch icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/melt-os/icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/melt-os/icon-152.png">
+  <link rel="apple-touch-icon" href="/melt-os/icon-180.png">
 <!-- v2.1 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,11 +215,11 @@ body {
   font-size: 9px;
   color: #3a3632;
   cursor: pointer;
-  transition: color .12s;
+  transition: color .15s, padding-left .15s cubic-bezier(.16,1,.3,1);
   white-space: nowrap;
   position: relative;
 }
-.sb-item:hover { color: #777; }
+.sb-item:hover { color: var(--off-black); padding-left: 20px; }
 .sb-item.on {
   color: var(--off-white);
   font-weight: 700;
@@ -300,11 +312,31 @@ body::-webkit-scrollbar-track { background: transparent; }
 body::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 99px; }
 body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 /* SCREENS */
 .screen {
   display: none; flex-direction: column;
-  animation: fadeUp .28s var(--ease) both;
+  animation: fadeUp .22s cubic-bezier(.16,1,.3,1) both;
 }
+#s-detail.active { animation: scaleIn .26s cubic-bezier(.16,1,.3,1) both; }
+#s-network.active { animation: fadeIn .2s ease both; }
+#s-calendar.active { animation: fadeIn .2s ease both; }
 .screen.active { display: flex; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -522,7 +554,8 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
   transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s cubic-bezier(.16,1,.3,1);
   position: relative;
 }
-.proj-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(22,20,18,.14); z-index: 2; }
+.proj-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(22,20,18,.12); z-index: 2; }
+.proj-card:active { transform: translateY(-1px); transition-duration: .08s; }
 .proj-card.overdue { border-left: 3px solid #C03A10; }
 .proj-card:nth-child(3n) { border-right: none; }
 @media (max-width: 1100px) {
@@ -792,6 +825,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
   position: relative;
   flex-shrink: 0;
   overflow: hidden;
+  transition: background .4s cubic-bezier(.16,1,.3,1);
 }
 /* Gradient overlay: project color to off-white */
 .detail-hero::after {
@@ -875,6 +909,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
   flex: 1; padding: 12px 18px;
   border-right: 1px solid var(--fainer);
   min-width: 80px;
+  animation: fadeIn .3s ease both;
 }
 .dm-editable { cursor: pointer; transition: background .12s; }
 .dm-editable:hover { background: var(--off-white); }
@@ -1016,7 +1051,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 
 /* Tab panels */
 .tab-panel { display: none; }
-.tab-panel.on { display: block; }
+.tab-panel.on { display: block; animation: slideInUp .2s cubic-bezier(.16,1,.3,1) both; }
 
 .brief-body { padding: 28px 28px; }
 .brief-text {
@@ -2196,6 +2231,15 @@ function nav(id) {
     el.style.display = s===id ? 'flex' : 'none';
   });
   window.scrollTo(0, 0);
+  // Micro-fade the main area on navigation
+  const mainEl = document.getElementById('main');
+  if (mainEl) {
+    mainEl.style.opacity = '0';
+    mainEl.style.transition = 'opacity .08s ease';
+    requestAnimationFrame(() => {
+      mainEl.style.opacity = '1';
+    });
+  }
   if (id==='projects') renderProjectsList();
   if (id==='tasks') renderTasksFull();
   if (id==='pipeline') renderPipelineFull();
@@ -2412,9 +2456,23 @@ function buildDashboard() {
   const activeN = projs.filter(p => ['in Progress','Active'].includes(p.fields['Status'])).length;
   const uniqueClientIds = [...new Set(projs.filter(p=>!['Delivered','Closed'].includes(p.fields['Status'])).flatMap(p=>p.fields['Client']||[]))];
   document.getElementById('g-sub').textContent = `${activeN} active · ${review} in review · ${DB.clients.length} clients`;
-  document.getElementById('gs-active').textContent = active;
-  document.getElementById('gs-review').textContent = review;
-  document.getElementById('gs-total').textContent = projs.length;
+  // Animate stats counting up
+  const animCount = (id, target) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const start = parseInt(el.textContent)||0;
+    if (start === target) return;
+    const dur = 600, steps = 20;
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      el.textContent = Math.round(start + (target - start) * (step/steps));
+      if (step >= steps) { el.textContent = target; clearInterval(interval); }
+    }, dur/steps);
+  };
+  animCount('gs-active', active);
+  animCount('gs-review', review);
+  animCount('gs-total', projs.length);
   document.getElementById('sb-proj-ct').textContent = projs.length;
   const alerts = [];
   if (overdue) alerts.push(`<div class="greet-chip" style="background:#3A1A14;color:#E8856A">${overdue} overdue</div>`);
