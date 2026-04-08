@@ -26,7 +26,6 @@
   --ease: cubic-bezier(.16,1,.3,1);
 }
 html { height:100%; }
-body { overflow-x: hidden; }
 body {
   background: var(--off-white);
   color: var(--off-black);
@@ -35,6 +34,8 @@ body {
   line-height: 1.4;
   height: 100%;
   overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ── SCROLLBAR ──────────────────────────────────── */
@@ -159,6 +160,7 @@ body {
   flex-direction: row;
   min-height: calc(100vh - 52px);
   margin-top: 52px;
+  align-items: flex-start;
 }
 
 /* ── SIDEBAR ──────────────────────────────────── */
@@ -2389,13 +2391,7 @@ function buildSidebar() {
   document.getElementById('sb-proj-ct').textContent = DB.projects.filter(nonTest).length;
   const cList = document.getElementById('sb-clients');
   if (cList) cList.innerHTML = DB.clients.map(c => `<div class="sb-client" onclick="filterByClient('${c.id}')" style="cursor:pointer" title="Filter by ${c.fields['Client Name']}"><div class="sb-swatch" style="background:${CLIENT_COLORS[c.id]}"></div><span class="sb-item-text">${c.fields['Client Name']}</span></div>`).join('');
-  const tList = document.getElementById('sb-team');
-  if (tList) tList.innerHTML = DB.team.map(m => {
-    const fn = m.fields['First Name']||'';
-    const ln = (m.fields['LAST Name']||'')[0]||'';
-    const role = (m.fields['Role']||'').split(' ')[0];
-    return `<div class="sb-client"><span class="sb-item-text">${fn} ${ln}. — <span style="color:var(--faint)">${role}</span></span></div>`;
-  }).join('');
+
   // Form dropdowns
   const cSel = document.getElementById('fi-client');
   if (cSel && cSel.options.length === 1) DB.clients.forEach(c => { const o=document.createElement('option'); o.value=c.id; o.textContent=c.fields['Client Name']; cSel.appendChild(o); });
