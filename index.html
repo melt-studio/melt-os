@@ -867,6 +867,87 @@ body {
   border-right: 1px solid var(--fainer);
   min-width: 80px;
 }
+.dm-editable { cursor: pointer; transition: background .12s; }
+.dm-editable:hover { background: var(--off-white); }
+.dm-edit-hint { font-size: 8px; color: var(--mid); opacity: 0; transition: opacity .15s; }
+.dm-editable:hover .dm-edit-hint { opacity: 1; }
+
+/* ── EDIT PANEL (slide-out from right) ── */
+.edit-panel {
+  position: fixed; top: 52px; right: -480px; bottom: 0;
+  width: 480px;
+  background: var(--off-white);
+  border-left: 1px solid var(--fainer);
+  z-index: 500;
+  display: flex; flex-direction: column;
+  transition: right .3s cubic-bezier(.16,1,.3,1);
+  box-shadow: -8px 0 40px rgba(22,20,18,.12);
+}
+.edit-panel.open { right: 0; }
+.ep-head {
+  background: var(--off-black);
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.ep-title { font-family: var(--sans); font-size: 18px; font-weight: 300; letter-spacing: -.04em; color: var(--off-white); }
+.ep-close { font-size: 18px; color: #555; cursor: pointer; line-height: 1; transition: color .15s; }
+.ep-close:hover { color: var(--off-white); }
+.ep-body { flex: 1; overflow-y: auto; padding: 0; }
+.ep-section { border-bottom: 1px solid var(--fainer); }
+.ep-section-hd { padding: 12px 20px 8px; font-family: var(--mono); font-size: 7px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--mid); }
+.ep-field { padding: 8px 20px 12px; }
+.ep-label { font-family: var(--mono); font-size: 7px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
+.ep-input, .ep-textarea, .ep-select {
+  width: 100%; font-family: var(--mono); font-size: 10px;
+  background: #fff; border: 1.5px solid var(--fainer);
+  border-radius: 8px; padding: 8px 12px;
+  color: var(--off-black); outline: none;
+  transition: border-color .15s;
+}
+.ep-input:focus, .ep-textarea:focus, .ep-select:focus { border-color: var(--off-black); }
+.ep-textarea { resize: none; line-height: 1.65; }
+.ep-select { -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23D8D5CE' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 28px; }
+.ep-save {
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em;
+  background: var(--off-black); color: var(--off-white);
+  border: none; border-radius: 99px; padding: 8px 20px;
+  cursor: pointer; transition: opacity .15s;
+}
+.ep-save:hover { opacity: .8; }
+.ep-save.saving { opacity: .5; }
+.ep-save.saved { background: #3D9B6B; }
+.ep-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--fainer);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; background: var(--off-white);
+}
+.ep-overlay {
+  display: none; position: fixed; inset: 0; z-index: 499;
+  background: rgba(22,20,18,.3);
+  backdrop-filter: blur(2px);
+}
+.ep-overlay.open { display: block; }
+
+/* Quick dropdown for inline status/stage edit */
+.quick-dropdown {
+  position: absolute; z-index: 600;
+  background: #fff;
+  border: 1.5px solid var(--fainer);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(22,20,18,.14);
+  min-width: 200px;
+  overflow: hidden;
+}
+.qd-item {
+  padding: 10px 16px;
+  font-family: var(--mono); font-size: 9px;
+  cursor: pointer; transition: background .1s;
+  display: flex; align-items: center; gap: 8px;
+}
+.qd-item:hover { background: var(--off-white); }
+.qd-item.active { font-weight: 700; }
 .dm-cell:last-child { border-right: none; }
 .dm-label {
   font-family: var(--mono);
@@ -1709,6 +1790,15 @@ body {
             <div id="d-team-list"></div>
           </div>
           <div class="rp-block">
+            <div class="rp-hd" style="background:var(--off-black);border-radius:0">
+              <div class="rp-title" style="color:var(--off-white)">Edit Project</div>
+              <div onclick="openEditPanel()" style="font-size:9px;color:#888;cursor:pointer;font-family:var(--mono);letter-spacing:.04em" onmouseover="this.style.color='var(--off-white)'" onmouseout="this.style.color='#888'">Open →</div>
+            </div>
+            <div style="padding:10px 16px;background:var(--off-black)">
+              <div onclick="openEditPanel()" style="font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--off-white);color:var(--off-black);padding:8px 14px;border-radius:99px;cursor:pointer;text-align:center;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">✎ Edit fields</div>
+            </div>
+          </div>
+          <div class="rp-block">
             <div class="rp-hd"><div class="rp-title">Record</div><div class="rp-action" id="d-at-link" style="cursor:pointer">Open Airtable ↗</div></div>
             <div id="d-raw-fields" style="padding:10px 16px;display:flex;flex-direction:column;gap:4px"></div>
           </div>
@@ -2472,6 +2562,7 @@ function openProject(id) {
   const bgNum = document.getElementById('d-hero-bg-num');
   if (bgNum) bgNum.textContent = f['Job Number']||'';
   document.getElementById('d-status').textContent = f['Status']||'—';
+  const svEl = document.getElementById('dm-status-val'); if(svEl) svEl.textContent = f['Status']||'—';
   document.getElementById('d-title').textContent = f['Project Name']||'—';
   document.getElementById('d-client').textContent = cid?clientName(cid):'—';
   document.getElementById('d-stage').textContent = (sid?stageName(sid):'—')+' Phase';
@@ -2717,6 +2808,265 @@ function copyText(text, btn) {
     setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; btn.style.borderColor=''; }, 1800);
   });
 }
+
+
+// ─── EDIT PANEL ────────────────────────────────────────────
+let _editDirty = false;
+
+function openEditPanel() {
+  if (!currentProject) return;
+  const f = currentProject.fields;
+
+  // Set title
+  const epName = document.getElementById('ep-proj-name');
+  if (epName) epName.textContent = f['Project Name'] || 'Edit Project';
+
+  // Status
+  const epStatus = document.getElementById('ep-status');
+  if (epStatus) epStatus.value = f['Status'] || 'in Progress';
+
+  // Stage dropdown — populate from DB.stages
+  const epStage = document.getElementById('ep-stage');
+  if (epStage) {
+    epStage.innerHTML = DB.stages
+      .sort((a,b) => (a.fields['Stage Number']||0) - (b.fields['Stage Number']||0))
+      .map(s => {
+        const name = s.fields['Name'].replace(/^\d+_/, '');
+        const sid = (f['Current Stage']||[])[0];
+        return `<option value="${s.id}" ${s.id === sid ? 'selected' : ''}>${name}</option>`;
+      }).join('');
+  }
+
+  // Dates — convert from ISO to date input format
+  const toDateInput = iso => iso ? iso.split('T')[0] : '';
+  const epStart = document.getElementById('ep-start');
+  const epDue   = document.getElementById('ep-due');
+  if (epStart) epStart.value = toDateInput(f['Start Date']);
+  if (epDue)   epDue.value   = toDateInput(f['Project Due Date']);
+
+  // Brief fields
+  const strip = s => s ? s.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim() : '';
+  const setV = (id, val) => { const el=document.getElementById(id); if(el) el.value=strip(val)||''; };
+  setV('ep-kickoff', f['Project Kickoff Notes']);
+  setV('ep-tone',    f['Tone']);
+  setV('ep-art',     f['Art Direction Notes']);
+  setV('ep-copy',    f['Copy Direction']);
+  setV('ep-notes',   f['Notes']);
+
+  // Asset links
+  setV('ep-keyart',    f['Key Art Project Folder']);
+  setV('ep-gfx',       f['Graphics (GFX) Project Folder']);
+  setV('ep-digital',   f['Digital Project Folder']);
+  setV('ep-social',    f['Social Media Project Folder']);
+  setV('ep-frameio',   f['Frame.io Link']);
+  setV('ep-designer',  f['Designer Submissions']);
+  setV('ep-figmalink', f['Figma Concept Board']);
+
+  // Team checkboxes
+  const teamOpts = document.getElementById('ep-team-opts');
+  if (teamOpts) {
+    const assigned = f['Assigned Team Members'] || [];
+    teamOpts.innerHTML = DB.team.map((m, i) => {
+      const fn = m.fields['First Name']||'', ln = m.fields['LAST Name']||m.fields['Last Name']||'';
+      const init = (fn[0]||'')+(ln[0]||'');
+      const role = m.fields['Role']||'';
+      const checked = assigned.includes(m.id);
+      const color = ['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832','#9B5FD4','#D45A7A'][i%8];
+      return `<label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;border-bottom:1px solid var(--fainer)">
+        <input type="checkbox" data-id="${m.id}" ${checked?'checked':''} style="width:14px;height:14px;cursor:pointer;accent-color:var(--off-black)">
+        <div style="width:24px;height:24px;border-radius:4px;background:${color};color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${init}</div>
+        <div style="flex:1"><div style="font-family:var(--sans);font-size:10px;font-weight:400">${fn} ${ln}</div><div style="font-size:8px;color:var(--mid)">${role}</div></div>
+      </label>`;
+    }).join('');
+  }
+
+  // Reset save state
+  const saveBtn = document.getElementById('ep-save-btn');
+  const saveStatus = document.getElementById('ep-save-status');
+  if (saveBtn) { saveBtn.textContent = 'Save to Airtable →'; saveBtn.className = 'ep-save'; }
+  if (saveStatus) saveStatus.textContent = '';
+
+  // Open
+  document.getElementById('edit-panel').classList.add('open');
+  document.getElementById('ep-overlay').classList.add('open');
+}
+
+function closeEditPanel() {
+  document.getElementById('edit-panel').classList.remove('open');
+  document.getElementById('ep-overlay').classList.remove('open');
+}
+
+async function saveEditPanel() {
+  if (!currentProject) return;
+  const saveBtn = document.getElementById('ep-save-btn');
+  const saveStatus = document.getElementById('ep-save-status');
+  saveBtn.textContent = 'Saving...'; saveBtn.className = 'ep-save saving'; saveBtn.disabled = true;
+
+  const gv = id => { const el=document.getElementById(id); return el ? el.value.trim() : ''; };
+  const teamIds = [...document.querySelectorAll('#ep-team-opts input[type=checkbox]:checked')].map(el=>el.dataset.id);
+  const epStage = document.getElementById('ep-stage');
+  const stageId = epStage?.value;
+
+  const fields = {
+    'Status': gv('ep-status'),
+  };
+  if (stageId) fields['Current Stage'] = [stageId];
+  if (gv('ep-start')) fields['Start Date'] = gv('ep-start');
+  if (gv('ep-due'))   fields['Project Due Date'] = gv('ep-due');
+  if (teamIds.length) fields['Assigned Team Members'] = teamIds;
+
+  // Brief fields — only include if non-empty
+  const briefFields = {
+    'Project Kickoff Notes': gv('ep-kickoff'),
+    'Tone':                  gv('ep-tone'),
+    'Art Direction Notes':   gv('ep-art'),
+    'Copy Direction':        gv('ep-copy'),
+    'Notes':                 gv('ep-notes'),
+  };
+  Object.entries(briefFields).forEach(([k,v]) => { if(v) fields[k]=v; });
+
+  // Asset links
+  const assetFields = {
+    'Key Art Project Folder':           gv('ep-keyart'),
+    'Graphics (GFX) Project Folder':    gv('ep-gfx'),
+    'Digital Project Folder':           gv('ep-digital'),
+    'Social Media Project Folder':      gv('ep-social'),
+    'Frame.io Link':                    gv('ep-frameio'),
+    'Designer Submissions':             gv('ep-designer'),
+    'Figma Concept Board':              gv('ep-figmalink'),
+  };
+  Object.entries(assetFields).forEach(([k,v]) => { if(v) fields[k]=v; });
+
+  try {
+    const AT = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+    const res = await fetch(
+      `https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${currentProject.id}`,
+      {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer '+AT, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      }
+    ).then(r=>r.json());
+
+    if (res.error) throw new Error(res.error.message);
+
+    // Update local state
+    currentProject.fields = { ...currentProject.fields, ...res.fields };
+    const projIdx = DB.projects.findIndex(p => p.id === currentProject.id);
+    if (projIdx > -1) DB.projects[projIdx] = currentProject;
+
+    // Refresh the detail view
+    openProject(currentProject.id);
+
+    saveBtn.textContent = '✓ Saved'; saveBtn.className = 'ep-save saved';
+    if (saveStatus) saveStatus.textContent = 'Saved to Airtable';
+    setTimeout(() => closeEditPanel(), 1200);
+
+  } catch(e) {
+    saveBtn.textContent = 'Save to Airtable →'; saveBtn.className = 'ep-save'; saveBtn.disabled = false;
+    if (saveStatus) saveStatus.textContent = 'Error: ' + e.message;
+    saveStatus.style.color = '#C03A10';
+  }
+}
+
+// ─── INLINE STATUS EDIT ────────────────────────────────────
+function editStatus() {
+  if (!currentProject) return;
+  const statusOptions = ['Pending Brief','in Progress','Client Review','On Hold','Delivered','Closed'];
+  const current = currentProject.fields['Status'];
+  const cell = document.querySelector('.dm-editable');
+  const rect = document.getElementById('dm-status-val')?.closest('.dm-cell')?.getBoundingClientRect()
+    || { bottom: 160, left: 220 };
+
+  const dd = document.getElementById('quick-dd');
+  dd.innerHTML = statusOptions.map(s => `
+    <div class="qd-item ${s===current?'active':''}" onclick="applyStatus('${s}')">
+      <div style="width:6px;height:6px;border-radius:50%;background:${s==='in Progress'?'#3D9B6B':s==='Client Review'?'#C8A84B':s==='Delivered'?'#555':'#888'};flex-shrink:0"></div>
+      ${s}
+    </div>`).join('');
+
+  dd.style.display = 'block';
+  dd.style.top = (rect.bottom + 4) + 'px';
+  dd.style.left = rect.left + 'px';
+  setTimeout(() => document.addEventListener('click', closeQD, {once:true}), 50);
+}
+
+async function applyStatus(status) {
+  closeQD();
+  if (!currentProject) return;
+  const el = document.getElementById('dm-status-val');
+  if (el) { el.textContent = status; el.style.opacity = '.5'; }
+  try {
+    const AT = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+    await fetch(`https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${currentProject.id}`,
+      { method:'PATCH', headers:{'Authorization':'Bearer '+AT,'Content-Type':'application/json'}, body:JSON.stringify({fields:{'Status':status}}) }
+    );
+    currentProject.fields['Status'] = status;
+    const pi = DB.projects.findIndex(p=>p.id===currentProject.id);
+    if(pi>-1) DB.projects[pi].fields['Status'] = status;
+    if (el) el.style.opacity = '1';
+  } catch(e) { if (el) { el.textContent = currentProject.fields['Status']; el.style.opacity='1'; } }
+}
+
+// ─── INLINE STAGE EDIT ─────────────────────────────────────
+function editStage() {
+  if (!currentProject) return;
+  const el = document.getElementById('dm-stage');
+  const rect = el?.closest('.dm-cell')?.getBoundingClientRect() || {bottom:160,left:220};
+  const dd = document.getElementById('quick-dd');
+  const current = (currentProject.fields['Current Stage']||[])[0];
+  dd.innerHTML = DB.stages
+    .sort((a,b)=>(a.fields['Stage Number']||0)-(b.fields['Stage Number']||0))
+    .map(s => `<div class="qd-item ${s.id===current?'active':''}" onclick="applyStage('${s.id}','${s.fields['Name'].replace(/^\d+_/,'')}')">${s.fields['Name'].replace(/^\d+_/,'')}</div>`).join('');
+  dd.style.display='block'; dd.style.top=(rect.bottom+4)+'px'; dd.style.left=rect.left+'px';
+  setTimeout(()=>document.addEventListener('click',closeQD,{once:true}),50);
+}
+
+async function applyStage(stageId, stageName) {
+  closeQD();
+  if (!currentProject) return;
+  const el = document.getElementById('dm-stage');
+  if (el) { el.textContent = stageName; el.style.opacity='.5'; }
+  try {
+    const AT = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+    await fetch(`https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${currentProject.id}`,
+      { method:'PATCH', headers:{'Authorization':'Bearer '+AT,'Content-Type':'application/json'}, body:JSON.stringify({fields:{'Current Stage':[stageId]}}) }
+    );
+    currentProject.fields['Current Stage'] = [stageId];
+    if (el) el.style.opacity='1';
+  } catch(e) { if(el){el.textContent=stageName;el.style.opacity='1';} }
+}
+
+// ─── INLINE DUE DATE ───────────────────────────────────────
+function editDueDate() {
+  if (!currentProject) return;
+  const el = document.getElementById('dm-due');
+  const current = currentProject.fields['Project Due Date'] || '';
+  const input = document.createElement('input');
+  input.type = 'date'; input.value = current;
+  input.style.cssText = 'font-family:var(--mono);font-size:11px;border:none;background:transparent;color:var(--off-black);outline:none;width:120px';
+  el.innerHTML = ''; el.appendChild(input); input.focus();
+  const save = async () => {
+    const v = input.value;
+    el.innerHTML = v ? (v.slice(5).replace('-','/') + '/' + v.slice(2,4)) : '—';
+    if (v && v !== current) {
+      const AT = (localStorage.getItem('melt_at_token'))||('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
+      await fetch(`https://api.airtable.com/v0/appPY2Uu1vGs9CRZq/tblBDnqLqrnvpnOln/${currentProject.id}`,
+        { method:'PATCH', headers:{'Authorization':'Bearer '+AT,'Content-Type':'application/json'}, body:JSON.stringify({fields:{'Project Due Date':v}}) }
+      );
+      currentProject.fields['Project Due Date'] = v;
+    }
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('change', save);
+}
+
+function closeQD() {
+  const dd = document.getElementById('quick-dd');
+  if (dd) dd.style.display = 'none';
+}
+
+// Update openProject to also populate the status meta cell
 
 // ─── ALL PROJECTS ────────────────────────────────────────
 let projListFilter='all';
@@ -2967,5 +3317,124 @@ if (window.location.protocol === 'file:') {
   loadAll();
 }
 </script>
+
+<!-- EDIT PANEL OVERLAY -->
+<div class="ep-overlay" id="ep-overlay" onclick="closeEditPanel()"></div>
+
+<!-- EDIT PANEL -->
+<div class="edit-panel" id="edit-panel">
+  <div class="ep-head">
+    <div class="ep-title" id="ep-proj-name">Edit Project</div>
+    <div class="ep-close" onclick="closeEditPanel()">✕</div>
+  </div>
+  <div class="ep-body">
+
+    <!-- Status & Stage -->
+    <div class="ep-section">
+      <div class="ep-section-hd">Project Status</div>
+      <div class="ep-field">
+        <div class="ep-label">Status</div>
+        <select class="ep-select" id="ep-status">
+          <option>Pending Brief</option>
+          <option>in Progress</option>
+          <option>Client Review</option>
+          <option>On Hold</option>
+          <option>Delivered</option>
+          <option>Closed</option>
+        </select>
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Stage</div>
+        <select class="ep-select" id="ep-stage"></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <div class="ep-field">
+          <div class="ep-label">Start Date</div>
+          <input type="date" class="ep-input" id="ep-start">
+        </div>
+        <div class="ep-field">
+          <div class="ep-label">Due Date</div>
+          <input type="date" class="ep-input" id="ep-due">
+        </div>
+      </div>
+    </div>
+
+    <!-- Brief & Creative -->
+    <div class="ep-section">
+      <div class="ep-section-hd">Creative Brief</div>
+      <div class="ep-field">
+        <div class="ep-label">Project Kickoff Notes</div>
+        <textarea class="ep-textarea" id="ep-kickoff" rows="4" placeholder="Overall direction, goals, context..."></textarea>
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Tone</div>
+        <textarea class="ep-textarea" id="ep-tone" rows="2" placeholder="Mood, feeling, references..."></textarea>
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Art Direction Notes</div>
+        <textarea class="ep-textarea" id="ep-art" rows="3" placeholder="Visual direction, palette, typography..."></textarea>
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Copy Direction</div>
+        <textarea class="ep-textarea" id="ep-copy" rows="2" placeholder="Key messaging, taglines, tone of voice..."></textarea>
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Notes</div>
+        <textarea class="ep-textarea" id="ep-notes" rows="3" placeholder="Anything else the team should know..."></textarea>
+      </div>
+    </div>
+
+    <!-- Asset Links -->
+    <div class="ep-section">
+      <div class="ep-section-hd">Asset Links</div>
+      <div class="ep-field">
+        <div class="ep-label">Key Art Project Folder</div>
+        <input class="ep-input" id="ep-keyart" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">GFX Folder</div>
+        <input class="ep-input" id="ep-gfx" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Digital Folder</div>
+        <input class="ep-input" id="ep-digital" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Social Media Folder</div>
+        <input class="ep-input" id="ep-social" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Frame.io Link</div>
+        <input class="ep-input" id="ep-frameio" placeholder="https://app.frame.io/...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Designer Submissions</div>
+        <input class="ep-input" id="ep-designer" placeholder="Drive or Dropbox link...">
+      </div>
+      <div class="ep-field">
+        <div class="ep-label">Figma Concept Board</div>
+        <input class="ep-input" id="ep-figmalink" placeholder="https://figma.com/file/...">
+      </div>
+    </div>
+
+    <!-- Team -->
+    <div class="ep-section">
+      <div class="ep-section-hd">Team</div>
+      <div class="ep-field">
+        <div class="ep-label">Assigned Team Members</div>
+        <div id="ep-team-opts" style="display:flex;flex-direction:column;gap:5px"></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="ep-footer">
+    <div style="font-family:var(--mono);font-size:8px;color:var(--mid)" id="ep-save-status">Unsaved changes</div>
+    <button class="ep-save" id="ep-save-btn" onclick="saveEditPanel()">Save to Airtable →</button>
+  </div>
+</div>
+
+<!-- QUICK DROPDOWN (for inline status/stage picks) -->
+<div class="quick-dropdown" id="quick-dd" style="display:none"></div>
+
 </body>
 </html>
