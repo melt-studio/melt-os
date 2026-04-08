@@ -154,8 +154,10 @@ body {
 ══════════════════════════════════════════════════ */
 .app {
   display: flex;
-  height: 100vh;
-  padding-top: 52px;
+  flex-direction: row;
+  height: calc(100vh - 52px);
+  margin-top: 52px;
+  overflow: hidden;
 }
 
 /* ── SIDEBAR ──────────────────────────────────── */
@@ -285,7 +287,8 @@ body {
 /* ── MAIN ──────────────────────────────────────── */
 .main {
   flex: 1; min-width: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex; flex-direction: column;
   position: relative;
 }
@@ -294,10 +297,9 @@ body {
 .screen {
   display: none; flex-direction: column;
   min-height: 100%;
-  height: 100%;
   animation: fadeUp .28s var(--ease) both;
 }
-.screen.active { display: flex; }
+.screen.active { display: flex; flex: 1; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -998,7 +1000,8 @@ body {
 .detail-body {
   display: grid;
   grid-template-columns: 1fr 260px;
-  flex: 1; min-height: 0;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 @media (max-width: 800px) {
@@ -1966,7 +1969,7 @@ body {
       <div class="table-head">
         <div class="th">Project</div><div class="th">Client</div><div class="th">Status</div><div class="th">Stage</div><div class="th">Due</div><div class="th">Team</div>
       </div>
-      <div style="overflow-y:auto;flex:1;min-height:0"><div id="proj-list-rows"></div></div>
+      <div style="overflow-y:auto;flex:1;min-height:0;-webkit-overflow-scrolling:touch"><div id="proj-list-rows"></div></div>
     </div>
 
     <!-- TASKS -->
@@ -2184,7 +2187,7 @@ function buildDueStrip() {
     const dueLabel = dl === null ? '—' : dl < 0 ? Math.abs(dl) + 'd over' : dl === 0 ? 'Today' : dl === 1 ? 'Tomorrow' : dl + 'd';
     const textColor = dl !== null && dl < 0 ? '#C03A10' : dl !== null && dl <= 3 ? '#9A6800' : 'var(--off-black)';
     const bg = dl !== null && dl < 0 ? '#FFF0EB' : '#fff';
-    return `<div onclick="openProject('${p.id}')" style="flex-shrink:0;min-width:160px;max-width:220px;padding:14px 20px;border-right:1px solid var(--fainer);cursor:pointer;background:${bg};transition:background .12s;display:flex;flex-direction:column;justify-content:space-between;gap:6px" onmouseover="this.style.background='var(--off-white)'" onmouseout="this.style.background='#fff'">
+    return `<div onclick="openProject('${p.id}')" onclick="openProject('${p.id}')" style="flex-shrink:0;min-width:160px;max-width:220px;padding:14px 20px;border-right:1px solid var(--fainer);cursor:pointer;background:${bg};transition:background .12s;display:flex;flex-direction:column;justify-content:space-between;gap:6px" onmouseover="this.style.background='var(--off-white)'" onmouseout="this.style.background='#fff'">
       <div style="width:6px;height:6px;border-radius:50%;background:${color}"></div>
       <div>
         <div style="font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:-.03em;color:var(--off-black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f['Project Name']}</div>
@@ -2682,6 +2685,10 @@ function openProject(id) {
   if (_tabs) _tabs.style.borderBottom = `2px solid ${color}40`;
   const bcLbl=document.getElementById('bc-lbl');
   if (bcLbl) bcLbl.textContent=f['Project Name']||'Project';
+  // Navigate to detail screen
+  navTo('detail');
+  renderBrief(p);
+  renderAssets(p);
 }
 
 function dTab(el, panelId) {
