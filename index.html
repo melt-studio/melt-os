@@ -1148,95 +1148,72 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 .tm-role { font-size: 8px; color: var(--mid); }
 
 /* ── PRESENTATIONS PANEL ──────────────────────── */
-.pres-row { border-bottom: 1px solid var(--fainer); }
-.pres-hd {
-  display: flex; align-items: center; gap: 8px;
-  padding: 11px 16px; cursor: pointer;
+.pres-row {
+  border-bottom: 1px solid var(--fainer);
   background: #fff;
-  transition: background .1s;
+  transition: background .12s;
+}
+.pres-row:last-child { border-bottom: none; }
+.pres-hd {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background .12s;
 }
 .pres-hd:hover { background: var(--off-white); }
-.pres-info { flex: 1; min-width: 0; }
+.pres-info {
+  flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+}
 .pres-title {
-  font-family: var(--sans); font-size: 11px; font-weight: 400;
+  font-family: var(--sans); font-size: 12px; font-weight: 400;
   letter-spacing: -.02em; color: var(--off-black);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.pres-url {
-  font-family: var(--mono); font-size: 8px; color: var(--mid);
-  margin-top: 2px;
-}
 .pres-round {
   font-family: var(--mono); font-size: 7px; font-weight: 700;
-  padding: 2px 7px; border-radius: 99px;
-  flex-shrink: 0;
+  padding: 2px 7px; border-radius: 99px; flex-shrink: 0;
+  letter-spacing: .04em;
 }
 .pres-latest {
   font-family: var(--mono); font-size: 7px; font-weight: 700;
-  padding: 2px 7px; border-radius: 99px;
-  background: #EBFFF5; color: #0A7A44;
-  flex-shrink: 0;
+  color: #3D9B6B; letter-spacing: .06em; text-transform: uppercase; flex-shrink: 0;
 }
-.pres-chevron { font-size: 10px; color: var(--mid); flex-shrink: 0; }
-
-.pres-detail { display: none; }
-.pres-link-block {
-  margin: 0 12px 10px;
-  background: var(--off-white);
-  border-radius: 8px;
-  border: 1px solid var(--fainer);
-  overflow: hidden;
+.pres-chevron {
+  font-size: 14px; color: var(--mid); flex-shrink: 0;
+  transition: transform .2s cubic-bezier(.16,1,.3,1);
 }
+.pres-detail { border-top: 1px solid var(--fainer); }
+.pres-link-block { }
 .pres-link-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--fainer);
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px; border-bottom: 1px solid var(--fainer);
 }
 .pres-link-label {
   font-family: var(--mono); font-size: 7px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  color: var(--mid); margin-bottom: 3px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--mid); margin-bottom: 3px;
 }
 .pres-link-val {
-  font-family: var(--mono); font-size: 9px; color: var(--mid);
-  flex: 1; min-width: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--mono); font-size: 9px; color: var(--off-black);
 }
 .pres-pass {
-  font-family: var(--mono); font-size: 13px; font-weight: 700;
-  color: var(--off-black);
+  font-family: var(--mono); font-size: 14px; letter-spacing: .06em;
+  font-weight: 700; color: var(--off-black);
 }
-.pres-btn-row { display: flex; gap: 5px; flex-shrink: 0; }
+.pres-btn-row { display: flex; gap: 6px; flex-shrink: 0; }
 .pres-btn {
   font-family: var(--mono); font-size: 8px; font-weight: 700;
-  padding: 5px 10px; border-radius: 6px; cursor: pointer;
-  background: #fff; border: 1px solid var(--faint);
-  color: var(--mid); transition: all .12s; text-decoration: none;
-  white-space: nowrap; display: inline-flex; align-items: center;
+  padding: 5px 12px; border-radius: 99px; cursor: pointer;
+  border: 1.5px solid var(--fainer); color: var(--mid);
+  background: #fff; transition: all .12s; white-space: nowrap;
 }
 .pres-btn:hover { border-color: var(--off-black); color: var(--off-black); }
 .pres-btn.dark {
   background: var(--off-black); color: var(--off-white);
-  border-color: var(--off-black);
+  border-color: var(--off-black); text-decoration: none;
 }
 .pres-btn.dark:hover { opacity: .8; }
-.pres-embed {
-  margin: 0 12px 10px;
-}
-.pres-embed-label {
-  font-family: var(--mono); font-size: 7px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  color: var(--mid); margin-bottom: 6px;
-}
-.pres-embed-frame {
-  position: relative; padding-bottom: 62.5%; height: 0;
-  overflow: hidden; border-radius: 8px;
-  border: 1px solid var(--fainer);
-}
-.pres-embed-frame iframe {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%; border: none;
-}
+.pres-embed { }
+.pres-embed-frame { }
 .pres-empty {
   padding: 28px 16px; text-align: center;
   display: flex; flex-direction: column;
@@ -2904,47 +2881,112 @@ function reviewsForProject(pid) {
 }
 
 function renderPresentations(pid) {
-  const container=document.getElementById('presentations-list');
-  if (!container||!pid) return;
-  const reviews=reviewsForProject(pid);
+  const container = document.getElementById('presentations-list');
+  if (!container || !pid) return;
+  const reviews = reviewsForProject(pid);
   if (!reviews.length) {
-    container.innerHTML=`<div class="pres-empty"><div class="pres-empty-icon">🎨</div><div class="pres-empty-title">No presentations yet</div><div class="pres-empty-sub">Creative reviews linked to this project will appear here.</div></div>`;
+    container.innerHTML = `<div class="pres-empty">
+      <div class="pres-empty-icon">◈</div>
+      <div class="pres-empty-title">No presentations yet</div>
+      <div class="pres-empty-sub">Link Creative Reviews to this project in Airtable — they'll appear here with live Figma embeds.</div>
+    </div>`;
     return;
   }
-  container.innerHTML=reviews.map((r,i)=>{
-    const f=r.fields;
-    const roundMatch=(f.pageUrl||'').match(/(\d{2})$/);
-    const round=roundMatch?`R${roundMatch[1]}`:'';
-    const link=f.link||`https://melt.works/docs/${f.pageUrl}`;
-    const isLatest=i===0;
-    return `<div class="pres-row">
+
+  // Convert a Figma share URL to an embeddable URL
+  function toFigmaEmbed(url) {
+    if (!url) return null;
+    try {
+      const u = new URL(url.startsWith('http') ? url : 'https://' + url);
+      // Already an embed
+      if (u.searchParams.get('embed-host')) return url;
+      // figma.com/deck/KEY/... → embed
+      if (u.hostname.includes('figma.com')) {
+        u.searchParams.set('embed-host', 'melt-os');
+        u.searchParams.set('theme', 'light');
+        return u.toString();
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  container.innerHTML = reviews.map((r, i) => {
+    const f = r.fields;
+    const roundMatch = (f.pageUrl||'').match(/(\d{2})$/);
+    const round    = roundMatch ? `R${roundMatch[1]}` : '';
+    const link     = f.link || `https://melt.works/docs/${f.pageUrl}`;
+    const embedUrl = f.embedUrl || toFigmaEmbed(f.link) || '';
+    const isLatest = i === 0;
+    const isOpen   = i === 0;
+
+    return `<div class="pres-row" id="prow-${r.id}">
+
+      <!-- Header row — click to expand/collapse -->
       <div class="pres-hd" onclick="togglePresRow('${r.id}')">
         <div class="pres-info">
-          <div class="pres-title">${f.title||'—'}</div>
-          <div class="pres-url">${f.pageUrl||''}</div>
+          <div class="pres-title">${f.title || f.pageUrl || '—'}</div>
+          ${round ? `<div class="pres-round" style="background:${isLatest ? 'var(--off-black)' : 'var(--fainer)'};color:${isLatest ? 'var(--off-white)' : 'var(--mid)'}">${round}</div>` : ''}
+          ${isLatest ? '<div class="pres-latest">Latest</div>' : ''}
         </div>
-        ${round?`<div class="pres-round" style="background:${isLatest?'var(--off-black)':'var(--fainer)'};color:${isLatest?'var(--off-white)':'var(--mid)'}">${round}</div>`:''}
-        ${isLatest?'<div class="pres-latest">Latest</div>':''}
-        <div class="pres-chevron" id="pc-${r.id}">${isLatest?'‹':'›'}</div>
+        <div class="pres-chevron" id="pc-${r.id}" style="transition:transform .2s;transform:${isOpen ? 'rotate(-90deg)' : 'rotate(0deg)'}">›</div>
       </div>
-      <div class="pres-detail" id="pd-${r.id}" style="display:${isLatest?'block':'none'}">
+
+      <!-- Expanded content -->
+      <div class="pres-detail" id="pd-${r.id}" style="display:${isOpen ? 'block' : 'none'}">
+
+        <!-- Password + link row -->
         <div class="pres-link-block">
           <div class="pres-link-row">
             <div style="flex:1;min-width:0">
-              <div class="pres-link-label">URL</div>
-              <div class="pres-link-val">${link}</div>
+              <div class="pres-link-label">Link</div>
+              <div class="pres-link-val" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${link}</div>
             </div>
             <div class="pres-btn-row">
-              <div class="pres-btn" onclick="copyText('${link}',this)">Copy</div>
+              <div class="pres-btn" onclick="copyText('${link}',this)">Copy link</div>
               <a class="pres-btn dark" href="${link}" target="_blank">Open ↗</a>
             </div>
           </div>
-          ${f.password?`<div class="pres-link-row">
-            <div style="flex:1"><div class="pres-link-label">Password</div><div class="pres-pass">${f.password}</div></div>
-            <div class="pres-btn" onclick="copyText('${f.password}',this)">Copy</div>
-          </div>`:'<div style="padding:8px 12px;font-size:8px;color:var(--mid)">No password</div>'}
+          ${f.password
+            ? `<div class="pres-link-row" style="background:var(--fainer)">
+                <div style="flex:1">
+                  <div class="pres-link-label">Password</div>
+                  <div class="pres-pass" style="font-size:14px;letter-spacing:.06em;font-weight:700;color:var(--off-black)">${f.password}</div>
+                </div>
+                <div class="pres-btn" onclick="copyText('${f.password}',this)">Copy</div>
+              </div>`
+            : '<div style="padding:8px 12px;font-size:8px;color:var(--mid)">No password set</div>'
+          }
         </div>
-        ${f.embedUrl?`<div class="pres-embed"><div class="pres-embed-label">Figma Preview</div><div class="pres-embed-frame"><iframe src="${f.embedUrl}" allowfullscreen></iframe></div></div>`:''}
+
+        <!-- Figma embed — loads lazily when expanded -->
+        ${embedUrl
+          ? `<div class="pres-embed">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px;border-top:1px solid var(--fainer)">
+                <div style="font-family:var(--mono);font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid)">Figma Preview</div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  ${f.password ? `<div onclick="copyText('${f.password}',this)" style="font-family:var(--mono);font-size:7px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--off-black);color:var(--off-white);cursor:pointer">Copy password</div>` : ''}
+                  <a href="${link}" target="_blank" style="font-family:var(--mono);font-size:7px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid var(--fainer);color:var(--mid);text-decoration:none">Full screen ↗</a>
+                </div>
+              </div>
+              <div class="pres-embed-frame" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:var(--fainer)">
+                <iframe
+                  src="${embedUrl}"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"
+                  allowfullscreen
+                  loading="lazy"
+                  allow="clipboard-write"
+                ></iframe>
+              </div>
+            </div>`
+          : `<div style="padding:16px 20px;background:var(--fainer);border-top:1px solid var(--fainer);display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-family:var(--mono);font-size:8px;font-weight:700;color:var(--mid)">No embed available</div>
+                <div style="font-family:var(--mono);font-size:7px;color:var(--faint);margin-top:2px">Add a Figma deck or proto link to enable preview</div>
+              </div>
+              <a href="${link}" target="_blank" style="font-family:var(--mono);font-size:8px;font-weight:700;padding:6px 14px;border-radius:99px;background:var(--off-black);color:var(--off-white);text-decoration:none">Open presentation ↗</a>
+            </div>`
+        }
+
       </div>
     </div>`;
   }).join('');
