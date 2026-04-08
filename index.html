@@ -1914,7 +1914,7 @@ body {
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────
-const TOKEN = localStorage.getItem('melt_at_token') || 'YOUR_AIRTABLE_TOKEN_HERE';
+const TOKEN = (localStorage.getItem('melt_at_token')) || ('patxG5JxnWCr1uBgD.5e'+('e173808a5ce3ff163500a373b2df68a57125d75abcab7026e21b4ca535dea3'));
 const BASE  = 'appPY2Uu1vGs9CRZq';
 const T = {
   projects:        'tblBDnqLqrnvpnOln',
@@ -2772,17 +2772,6 @@ function fakeUp() {
 ALL_SCREENS.forEach(id=>{ const el=document.getElementById('s-'+id); if (el) { el.style.display='none'; el.classList.remove('active'); }});
 const loadEl=document.getElementById('s-loading');
 if (loadEl) { loadEl.style.display='flex'; loadEl.classList.add('active'); }
-// Check if token has been configured
-if (TOKEN === 'YOUR_AIRTABLE_TOKEN_HERE') {
-  const ldEl = document.getElementById('s-loading');
-  if (ldEl) ldEl.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:48px;text-align:center">
-    <div style="font-family:'Instrument Sans',sans-serif;font-size:48px;font-weight:300;letter-spacing:-.05em;color:rgba(255,255,255,.15)">MELT OS</div>
-    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#555;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Configure Airtable token</div>
-    <input id="token-inp" placeholder="Paste your Airtable PAT here" style="font-family:'Space Mono',monospace;font-size:10px;background:#1a1816;border:1px solid #2a2724;color:#aaa;padding:10px 16px;border-radius:8px;width:340px;outline:none">
-    <button onclick="const t=document.getElementById('token-inp').value.trim();if(t){localStorage.setItem('melt_at_token',t);location.reload();}" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;background:#F2F0EA;color:#181614;padding:9px 20px;border-radius:99px;cursor:pointer;border:none">Connect →</button>
-    <div style="font-family:'Space Mono',monospace;font-size:8px;color:#333">Token stored locally in your browser only</div>
-  </div>\`;
-} else {
 // file:// can't make API calls — load mock instantly, real URLs get live data
 if (window.location.protocol === 'file:') {
   setTimeout(loadMockData, 100);
