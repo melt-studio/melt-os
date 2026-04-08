@@ -7,6 +7,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELT OS</title>
+<!-- v2.1 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -287,11 +288,20 @@ body {
 /* ── MAIN ──────────────────────────────────────── */
 .main {
   flex: 1; min-width: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   display: flex; flex-direction: column;
   position: relative;
 }
+/* Always-visible scrollbar */
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 99px; }
+.main::-webkit-scrollbar-thumb:hover { background: var(--mid); }
+/* Scrollable left panel in detail */
+.detail-left::-webkit-scrollbar { width: 4px; }
+.detail-left::-webkit-scrollbar-track { background: transparent; }
+.detail-left::-webkit-scrollbar-thumb { background: var(--fainer); border-radius: 99px; }
 
 /* SCREENS */
 .screen {
@@ -2407,7 +2417,7 @@ function buildSidebar() {
   const nonTest = p => p.fields['Job Number'] !== '0000';
   document.getElementById('sb-proj-ct').textContent = DB.projects.filter(nonTest).length;
   const cList = document.getElementById('sb-clients');
-  if (cList) cList.innerHTML = DB.clients.map(c => `<div class="sb-client"><div class="sb-swatch" style="background:${CLIENT_COLORS[c.id]}"></div><span class="sb-item-text">${c.fields['Client Name']}</span></div>`).join('');
+  if (cList) cList.innerHTML = DB.clients.map(c => `<div class="sb-client" onclick="filterByClient('${c.id}')" style="cursor:pointer" title="Filter by ${c.fields['Client Name']}"><div class="sb-swatch" style="background:${CLIENT_COLORS[c.id]}"></div><span class="sb-item-text">${c.fields['Client Name']}</span></div>`).join('');
   const tList = document.getElementById('sb-team');
   if (tList) tList.innerHTML = DB.team.map(m => {
     const fn = m.fields['First Name']||'';
@@ -2686,6 +2696,7 @@ function openProject(id) {
   const bcLbl=document.getElementById('bc-lbl');
   if (bcLbl) bcLbl.textContent=f['Project Name']||'Project';
   // Navigate to detail screen
+  console.log('MELT OS: openProject navigating to detail:', id);
   navTo('detail');
   renderBrief(p);
   renderAssets(p);
@@ -2735,6 +2746,67 @@ async function saveBriefField(el) {
     el.style.opacity = '1';
     console.error('Save failed:', e);
   }
+}
+
+
+
+// ─── OPEN TEAM MEMBER ─────────────────────────────────────
+function openMember(memberId) {
+  navTo('network');
+  // Scroll to and highlight the member card
+  setTimeout(() => {
+    const el = document.querySelector(`[data-member-id="${memberId}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.outline = '2px solid var(--off-black)';
+      el.style.outlineOffset = '2px';
+      setTimeout(() => { el.style.outline = ''; el.style.outlineOffset = ''; }, 2000);
+    }
+  }, 100);
+}
+
+// ─── FILTER BY CLIENT ─────────────────────────────────────
+function filterByClient(clientId) {
+  navTo('dash');
+  // Filter project grid to show only this client's projects
+  const nonTest = p => p.fields['Job Number'] !== '0000';
+  let projs = DB.projects.filter(nonTest).filter(p => (p.fields['Client']||[]).includes(clientId));
+  const grid = document.getElementById('proj-grid');
+  if (!grid) return;
+  const avColors = ['#E8645A','#4A7FD6','#3D9B6B','#C8A84B','#4ABFCC','#B8A832'];
+  const statusDot = s => {
+    const c = s==='in Progress'?'#3D9B6B':s==='Client Review'?'#C8A84B':'#888';
+    return `<div style="width:6px;height:6px;border-radius:50%;background:${c};flex-shrink:0"></div>`;
+  };
+  grid.innerHTML = projs.map(p => {
+    const f=p.fields, cid=(f['Client']||[])[0], color=cid?clientColor(cid):'#888';
+    const cName=cid?clientName(cid):'—', sid=(f['Current Stage']||[])[0];
+    const sName=sid?stageName(sid):'—', dl=daysLeft(f['Project Due Date']);
+    const dueLabel=dl===null?'—':dl<0?`${Math.abs(dl)}d overdue`:dl===0?'Today':dl===1?'Tomorrow':fmtDate(f['Project Due Date']);
+    const dueColor=dl!==null&&dl<0?'#C03A10':dl!==null&&(dl===0||dl===1)?'#C8A84B':'var(--mid)';
+    const teamIds=(f['Assigned Team Members']||[]).slice(0,3);
+    const stN=Math.round((sid?stageNum(sid):1)/6*100);
+    return `<div class="proj-card" onclick="openProject('${p.id}')">
+      <div class="card-banner" style="background:${color}">
+        <div class="card-job" style="position:absolute;right:14px;top:12px;font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.08em">#${f['Job Number']||'—'}</div>
+        <div class="card-tags">${(f['Project Type']||[]).slice(0,1).map(t=>`<div class="card-tag">${t}</div>`).join('')}</div>
+        <div class="card-title">${f['Project Name']||'—'}</div>
+        <div class="card-client" style="opacity:.55">${cName}</div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(0,0,0,.15)"><div style="height:100%;background:rgba(255,255,255,.5);width:${stN}%"></div></div>
+      </div>
+      <div class="card-foot">
+        <div class="card-meta">
+          <div class="card-mi"><div class="card-ml">Status</div><div class="card-mv" style="display:flex;align-items:center;gap:4px">${statusDot(f['Status'])}<span>${f['Status']||'—'}</span></div></div>
+          <div class="card-mi"><div class="card-ml">Due</div><div class="card-mv" style="color:${dueColor}">${dueLabel}</div></div>
+        </div>
+        <div class="card-avs">${teamIds.map((id,i)=>`<div class="card-av" style="background:${avColors[i%avColors.length]}">${teamInit(id)}</div>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('') + `<div class="proj-card card-new" onclick="navTo('form')"><div class="card-new-icon">+</div><div class="card-new-label">New Project</div></div>`;
+  // Show a "back" hint
+  const projCt = document.getElementById('proj-ct');
+  if (projCt) projCt.textContent = `${projs.length} projects · ${clientName(clientId)} ✕ clear`;
+  projCt.onclick = () => { buildDashboard(); projCt.onclick=null; };
 }
 
 // ─── BRIEF ────────────────────────────────────────────────
