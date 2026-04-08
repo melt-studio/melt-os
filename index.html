@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MELT OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2184,7 +2187,7 @@ async function loadAll() {
   const _fallback = setTimeout(() => {
     console.warn('MELT OS: connection timeout, switching to mock');
     loadMockData();
-  }, 8000);
+  }, 3000);
 
   const setMsg = t => { const el=document.getElementById('loader-msg'); if(el) el.textContent=t; };
 
