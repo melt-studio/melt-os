@@ -347,7 +347,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 #s-detail.active { animation: scaleIn .26s cubic-bezier(.16,1,.3,1) both; }
 #s-network.active { animation: fadeIn .2s ease both; }
 #s-calendar.active { animation: fadeIn .2s ease both; }
-.screen.active { display: flex; }
+/* screen.active handled by animation block */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -557,17 +557,30 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 }
 
 .proj-card {
-  border: var(--card-border);
+  border: 1px solid rgba(255,255,255,.1);
   border-radius: var(--radius);
   cursor: pointer;
   overflow: hidden;
   display: flex; flex-direction: column;
-  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s ease;
   position: relative;
-  background: var(--os-light);
+  background: #111;
 }
-.proj-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 60px rgba(0,0,0,.4); z-index: 2; }
+.proj-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  z-index: 2;
+  border-color: rgba(255,255,255,.2);
+}
 .proj-card:active { transform: translateY(-1px) scale(1.0); transition-duration: .08s; }
+/* Banner: black default, fades to project color on hover */
+.card-banner {
+  background: #1a1a1a;
+  transition: background .4s cubic-bezier(.16,1,.3,1);
+}
+.proj-card:hover .card-banner {
+  background: var(--card-color, #333) !important;
+}
 .proj-card.overdue { border-left: 3px solid #C03A10; }
 .proj-card:nth-child(3n) { border-right: none; }
 @media (max-width: 1100px) {
@@ -584,6 +597,8 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
   overflow: hidden;
   flex-shrink: 0;
   border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+  background: #1a1a1a;
+  transition: background .4s cubic-bezier(.16,1,.3,1);
 }
 .card-banner::after {
   content: '';
@@ -636,8 +651,8 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 .card-foot {
   padding: 8px 14px;
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--os-light);
-  border-top: var(--card-border);
+  background: #1a1a1a;
+  border-top: 1px solid rgba(255,255,255,.07);
   flex: 1;
   border-radius: 0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px);
 }
@@ -2562,8 +2577,8 @@ function renderProjects(filter) {
     const dueLabel = dl===null ? '—' : dl<0 ? `${Math.abs(dl)}d overdue` : dl===0 ? 'Today' : dl===1 ? 'Tomorrow' : due;
     const dueColor = isOverdue ? '#C03A10' : dl===0||dl===1 ? '#C8A84B' : 'var(--mid)';
 
-    return `<div class="proj-card" onclick="openProject('${p.id}')">
-      <div class="card-banner" style="background:${color}">
+    return `<div class="proj-card" onclick="openProject('${p.id}')" style="--card-color:${color}">
+      <div class="card-banner">
         <div class="card-job" style="position:absolute;right:14px;top:12px;font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.08em">#${f['Job Number']||'—'}</div>
         <div class="card-tags">${types.slice(0,1).map(t=>`<div class="card-tag">${t}</div>`).join('')}</div>
         <div class="card-title">${f['Project Name']||'—'}</div>
@@ -2827,8 +2842,8 @@ function filterByClient(clientId) {
     const dueColor=dl!==null&&dl<0?'#C03A10':dl!==null&&(dl===0||dl===1)?'#C8A84B':'var(--mid)';
     const teamIds=(f['Assigned Team Members']||[]).slice(0,3);
     const stN=Math.round((sid?stageNum(sid):1)/6*100);
-    return `<div class="proj-card" onclick="openProject('${p.id}')">
-      <div class="card-banner" style="background:${color}">
+    return `<div class="proj-card" onclick="openProject('${p.id}')" style="--card-color:${color}">
+      <div class="card-banner">
         <div class="card-job" style="position:absolute;right:14px;top:12px;font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.08em">#${f['Job Number']||'—'}</div>
         <div class="card-tags">${(f['Project Type']||[]).slice(0,1).map(t=>`<div class="card-tag">${t}</div>`).join('')}</div>
         <div class="card-title">${f['Project Name']||'—'}</div>
