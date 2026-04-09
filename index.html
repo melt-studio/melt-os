@@ -347,7 +347,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 #s-detail.active { animation: scaleIn .26s cubic-bezier(.16,1,.3,1) both; }
 #s-network.active { animation: fadeIn .2s ease both; }
 #s-calendar.active { animation: fadeIn .2s ease both; }
-/* screen.active handled by animation block */
+.screen.active { display: flex; animation: fadeUp .3s cubic-bezier(.16,1,.3,1) both; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -1572,6 +1572,220 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 .net-card:nth-child(2) { animation-delay: .08s; }
 .net-card:nth-child(3) { animation-delay: .12s; }
 .net-card:nth-child(4) { animation-delay: .16s; }
+
+
+/* ═══════════════════════════════════════════════════
+   MELT OS v2 — DESIGN OVERRIDES (FINAL)
+   Applied from Figma redesign — always wins
+═══════════════════════════════════════════════════ */
+
+/* TOPBAR — dark */
+.topbar {
+  background: #0F0F0F !important;
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+}
+
+/* SIDEBAR — dark */
+.sidebar {
+  background: #383838 !important;
+  border-right: 1px solid rgba(255,255,255,.06) !important;
+}
+.sb-item { color: rgba(255,255,255,.5) !important; font-family: var(--sans) !important; }
+.sb-item:hover { color: rgba(255,255,255,.9) !important; }
+.sb-item.on { color: #fff !important; }
+.sb-label { color: rgba(255,255,255,.3) !important; font-family: var(--mono) !important; }
+.sb-swatch { border-radius: 50% !important; }
+.at-badge { background: #383838 !important; border-top: 1px solid rgba(255,255,255,.08) !important; color: rgba(255,255,255,.3) !important; }
+.sb-client { color: rgba(255,255,255,.5) !important; }
+
+/* APP BACKGROUND */
+.app, .main, .screen, body { background: #0F0F0F; }
+
+/* PROJECT CARDS — black default, project color on hover */
+.proj-card {
+  background: #111 !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 9px !important;
+}
+.proj-card:hover {
+  border-color: rgba(255,255,255,.25) !important;
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5) !important;
+}
+.card-banner {
+  background: #1a1a1a !important;
+  transition: background .4s cubic-bezier(.16,1,.3,1) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+.proj-card:hover .card-banner {
+  background: var(--card-color, #333) !important;
+}
+.card-foot {
+  background: #111 !important;
+  border-top: 1px solid rgba(255,255,255,.07) !important;
+  border-radius: 0 0 8px 8px !important;
+}
+.card-ml { color: rgba(255,255,255,.35) !important; font-family: var(--mono) !important; }
+.card-mv { color: rgba(255,255,255,.75) !important; font-family: var(--sans) !important; }
+.card-title { color: #F2F0EA !important; font-size: 26px !important; font-weight: 400 !important; }
+.card-client { color: rgba(255,255,255,.45) !important; }
+.card-new { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,.1) !important; border-radius: 9px !important; }
+.card-new:hover { background: #222 !important; }
+.card-new-icon { color: rgba(255,255,255,.2) !important; border-color: rgba(255,255,255,.1) !important; }
+.card-new-label { color: rgba(255,255,255,.2) !important; }
+
+/* PROJECT GRID */
+.proj-grid { gap: 14px !important; padding: 0 !important; border: none !important; }
+
+/* GREETING BAND */
+.dash-greet {
+  border-radius: 9px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.greet-left, .greet-stats { position: relative; z-index: 2; }
+.greet-name { color: #F2F0EA !important; }
+.greet-eyebrow, .greet-sub { color: rgba(255,255,255,.4) !important; }
+.greet-chip { border-radius: 7px !important; }
+.stat-n { font-size: 44px !important; }
+
+/* FILTER BAR */
+.filter-bar { background: transparent !important; padding: 0 !important; border: none !important; margin-bottom: 4px; }
+.filter-chip { border-radius: 99px !important; }
+.filter-chip:not(.on) { background: transparent !important; border: 1px solid rgba(255,255,255,.12) !important; color: rgba(255,255,255,.45) !important; }
+.filter-chip.on { background: rgba(255,255,255,.9) !important; color: #111 !important; border-color: transparent !important; }
+
+/* DUE STRIP */
+#due-strip { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 9px !important; }
+.due-item { border-right: 1px solid rgba(255,255,255,.06) !important; background: transparent !important; }
+.due-pname { color: rgba(255,255,255,.75) !important; }
+.due-days { color: rgba(255,255,255,.4) !important; }
+.due-days.late { color: #E8856A !important; }
+
+/* SECTION LABELS on all screens */
+.inner-hd { background: #1a1a1a !important; border-radius: 9px !important; border: 1px solid rgba(255,255,255,.08) !important; }
+.inner-title { color: #F2F0EA !important; }
+.inner-sub { color: rgba(255,255,255,.4) !important; }
+
+/* ALL PROJECTS TABLE */
+.t-head { background: #0a0a0a !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; }
+.t-head > div { color: rgba(255,255,255,.35) !important; }
+.t-row { background: #111 !important; border-bottom: 1px solid rgba(255,255,255,.05) !important; border-radius: 0 !important; }
+.t-row:hover { background: #1a1a1a !important; }
+.t-name { color: rgba(255,255,255,.85) !important; }
+.t-client, .t-stage, .t-job { color: rgba(255,255,255,.4) !important; }
+.t-due { color: rgba(255,255,255,.4) !important; }
+
+/* NETWORK */
+.net-card { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 9px !important; }
+.net-card:hover { background: #222 !important; }
+.net-name { color: rgba(255,255,255,.85) !important; }
+.net-role { color: rgba(255,255,255,.4) !important; }
+.net-label { color: rgba(255,255,255,.3) !important; }
+.net-client-card { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 9px !important; }
+
+/* CALENDAR */
+.cal-hd { background: #1a1a1a !important; border-radius: 9px !important; border: 1px solid rgba(255,255,255,.08) !important; }
+.cal-title { color: #F2F0EA !important; }
+.cal-grid { background: #111 !important; border: 1px solid rgba(255,255,255,.07) !important; border-radius: 9px !important; }
+.cal-dh { background: #0a0a0a !important; }
+.cal-dh-day { color: rgba(255,255,255,.3) !important; }
+.cal-day { background: #111 !important; border-color: rgba(255,255,255,.05) !important; }
+.cal-day-num { color: rgba(255,255,255,.3) !important; }
+.cal-today-num { background: #fff !important; color: #111 !important; }
+.cal-nav { background: rgba(255,255,255,.06) !important; color: rgba(255,255,255,.5) !important; }
+.cal-month { color: #F2F0EA !important; }
+
+/* DETAIL PAGE */
+.detail-hero { transition: background .4s ease !important; }
+.detail-meta { background: #0a0a0a !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+.dm-label { color: rgba(255,255,255,.3) !important; font-family: var(--mono) !important; }
+.dm-value { color: rgba(255,255,255,.85) !important; }
+.dm-cell { border-right: 1px solid rgba(255,255,255,.06) !important; }
+.dm-editable:hover { background: rgba(255,255,255,.04) !important; }
+.detail-tabs { background: #0a0a0a !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+.d-tab { color: rgba(255,255,255,.3) !important; }
+.d-tab.on { color: rgba(255,255,255,.85) !important; }
+.brief-body { background: #111 !important; }
+.brief-col-hd { color: rgba(255,255,255,.3) !important; font-family: var(--mono) !important; }
+.brief-editable { color: rgba(255,255,255,.75) !important; }
+.brief-editable:hover { background: rgba(255,255,255,.04) !important; }
+.brief-editable:focus { background: #1a1a1a !important; box-shadow: 0 0 0 1.5px rgba(255,255,255,.2) !important; }
+.detail-right { background: #0d0d0d !important; border-left: 1px solid rgba(255,255,255,.06) !important; }
+.rp-title { color: rgba(255,255,255,.35) !important; font-family: var(--mono) !important; }
+.rp-block { border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+.detail-left { border-right: 1px solid rgba(255,255,255,.06) !important; }
+
+/* PIPELINE */
+.pipe-hd { background: #0a0a0a !important; color: rgba(255,255,255,.5) !important; }
+.pipe-proj { background: #111 !important; border-bottom: 1px solid rgba(255,255,255,.05) !important; }
+.pipe-proj:hover { background: #1a1a1a !important; }
+.pipe-name { color: rgba(255,255,255,.8) !important; }
+
+/* ARCHIVE */
+.arch-row { background: #111 !important; border-bottom: 1px solid rgba(255,255,255,.05) !important; }
+.arch-row:hover { background: #1a1a1a !important; }
+.arch-name { color: rgba(255,255,255,.75) !important; }
+.arch-client { color: rgba(255,255,255,.4) !important; }
+
+/* PRESENTATIONS */
+.pres-row { background: #1a1a1a !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; }
+.pres-hd:hover { background: rgba(255,255,255,.04) !important; }
+.pres-title { color: rgba(255,255,255,.8) !important; }
+.pres-link-row { border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+.pres-link-label { color: rgba(255,255,255,.3) !important; }
+.pres-link-val { color: rgba(255,255,255,.6) !important; }
+.pres-pass { color: #F2F0EA !important; }
+.pres-btn { background: transparent !important; border: 1px solid rgba(255,255,255,.15) !important; color: rgba(255,255,255,.5) !important; }
+.pres-btn:hover { border-color: rgba(255,255,255,.4) !important; color: rgba(255,255,255,.9) !important; }
+
+/* EDIT PANEL */
+.ep-body { background: #1a1a1a !important; }
+.ep-section { border-bottom: 1px solid rgba(255,255,255,.07) !important; }
+.ep-section-hd { color: rgba(255,255,255,.3) !important; }
+.ep-label { color: rgba(255,255,255,.35) !important; }
+.ep-input, .ep-textarea, .ep-select {
+  background: #111 !important;
+  border: 1.5px solid rgba(255,255,255,.1) !important;
+  color: rgba(255,255,255,.85) !important;
+}
+.ep-input:focus, .ep-textarea:focus, .ep-select:focus { border-color: rgba(255,255,255,.4) !important; }
+.ep-footer { background: #1a1a1a !important; border-top: 1px solid rgba(255,255,255,.07) !important; }
+.ep-overlay { background: rgba(0,0,0,.6) !important; }
+.edit-panel { background: #1a1a1a !important; border-left: 1px solid rgba(255,255,255,.08) !important; }
+.quick-dropdown { background: #1a1a1a !important; border: 1.5px solid rgba(255,255,255,.12) !important; }
+.qd-item { color: rgba(255,255,255,.65) !important; }
+.qd-item:hover { background: rgba(255,255,255,.05) !important; color: #fff !important; }
+
+/* FORM / NEW PROJECT */
+.form-screen { background: #0F0F0F !important; }
+.form-wrap { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 9px !important; }
+.form-headline { color: #F2F0EA !important; }
+.fi-label { color: rgba(255,255,255,.35) !important; font-family: var(--mono) !important; }
+.fi-input, .fi-select, .fi-textarea {
+  background: #111 !important;
+  border: 1.5px solid rgba(255,255,255,.1) !important;
+  color: rgba(255,255,255,.85) !important;
+}
+.step-label { color: rgba(255,255,255,.35) !important; }
+.step-n { background: #0a0a0a !important; }
+
+/* SCROLLBARS */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); }
+
+/* SEARCH / FILTER INPUTS */
+.search-input { background: rgba(255,255,255,.06) !important; border: 1px solid rgba(255,255,255,.1) !important; color: rgba(255,255,255,.75) !important; border-radius: 99px !important; }
+.search-input::placeholder { color: rgba(255,255,255,.3) !important; }
+
+/* STATUS BADGES */
+.status-badge { border-radius: 99px !important; }
+
+/* ANIMATIONS — ensure screen is dark during transition */
+.screen { background: #0F0F0F; }
+
 
 </style>
 </head>
