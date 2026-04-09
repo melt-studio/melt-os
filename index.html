@@ -22,24 +22,30 @@
 <!-- v2.1 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&family=Instrument+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
 /* ── RESET ─────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root {
-  --off-white: #F2F0EA;
-  --off-black: #181614;
-  --mid: #8A8680;
-  --faint: #D8D5CE;
-  --fainer: #E8E5DE;
-  --sans: 'Instrument Sans', sans-serif;
-  --mono: 'Space Mono', monospace;
-  --ease: cubic-bezier(.16,1,.3,1);
+  --off-white:  #F2F0EA;
+  --off-black:  #181614;
+  --os-black:   #0F0F0F;
+  --os-dark:    #383838;
+  --os-light:   #E8E8E8;
+  --mid:        #8A8780;
+  --faint:      #D8D5CE;
+  --fainer:     #E8E5DE;
+  --sans:       'Instrument Sans', sans-serif;
+  --mono:       'Instrument Mono', 'Space Mono', monospace;
+  --ease:       cubic-bezier(.16,1,.3,1);
+  --radius:     9px;
+  --gap:        16px;
+  --card-border: 0.5px solid #E8E8E8;
 }
 html { height:100%; }
 body {
-  background: var(--off-white);
+  background: var(--os-black);
   color: var(--off-black);
   font-family: var(--mono);
   font-size: 11px;
@@ -213,16 +219,17 @@ body {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 16px;
   font-size: 9px;
-  color: #3a3632;
+  color: rgba(255,255,255,.45);
   cursor: pointer;
   transition: color .15s, padding-left .15s cubic-bezier(.16,1,.3,1);
   white-space: nowrap;
   position: relative;
+  font-family: var(--sans);
 }
-.sb-item:hover { color: var(--off-black); padding-left: 20px; }
+.sb-item:hover { color: rgba(255,255,255,.85); padding-left: 20px; }
 .sb-item.on {
-  color: var(--off-white);
-  font-weight: 700;
+  color: #fff;
+  font-weight: 600;
 }
 .sb-item.on::before {
   content: '';
@@ -305,6 +312,9 @@ body {
   flex: 1; min-width: 0;
   display: flex; flex-direction: column;
   position: relative;
+  background: var(--os-black);
+  padding: var(--gap);
+  gap: var(--gap);
 }
 /* Page-level scrollbar (body) */
 body::-webkit-scrollbar { width: 6px; }
@@ -536,7 +546,8 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 .proj-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid var(--fainer);
+  gap: var(--gap);
+  padding-bottom: var(--gap);
 }
 @media (max-width: 1100px) {
   .proj-grid { grid-template-columns: repeat(2, 1fr); }
@@ -546,16 +557,17 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 }
 
 .proj-card {
-  border-right: 1px solid var(--fainer);
-  border-bottom: 1px solid var(--fainer);
+  border: var(--card-border);
+  border-radius: var(--radius);
   cursor: pointer;
   overflow: hidden;
   display: flex; flex-direction: column;
-  transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s cubic-bezier(.16,1,.3,1);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
   position: relative;
+  background: var(--os-light);
 }
-.proj-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(22,20,18,.12); z-index: 2; }
-.proj-card:active { transform: translateY(-1px); transition-duration: .08s; }
+.proj-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 60px rgba(0,0,0,.4); z-index: 2; }
+.proj-card:active { transform: translateY(-1px) scale(1.0); transition-duration: .08s; }
 .proj-card.overdue { border-left: 3px solid #C03A10; }
 .proj-card:nth-child(3n) { border-right: none; }
 @media (max-width: 1100px) {
@@ -571,6 +583,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
 }
 .card-banner::after {
   content: '';
@@ -607,10 +620,10 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 }
 .card-title {
   font-family: var(--sans);
-  font-size: 20px; font-weight: 300;
+  font-size: 28px; font-weight: 400;
   letter-spacing: -.04em;
-  color: #fff;
-  line-height: 1.0;
+  color: var(--off-white);
+  line-height: 1.1;
   position: relative; z-index: 1;
 }
 .card-client {
@@ -621,11 +634,12 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 
 /* Card footer */
 .card-foot {
-  padding: 10px 18px;
+  padding: 8px 14px;
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--off-white);
-  border-top: 1px solid var(--fainer);
+  background: var(--os-light);
+  border-top: var(--card-border);
   flex: 1;
+  border-radius: 0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px);
 }
 .card-meta { display: flex; gap: 14px; }
 .card-mi { display: flex; flex-direction: column; gap: 2px; }
@@ -655,19 +669,20 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 
 /* New project card */
 .card-new {
-  min-height: 172px;
+  min-height: 208px;
   display: flex; align-items: center; justify-content: center;
-  background: var(--off-black);
+  background: #1a1a1a;
   cursor: pointer;
-  transition: background .2s;
-  flex-direction: column; gap: 9px;
-  border-right: none !important;
+  transition: background .2s var(--ease);
+  flex-direction: column; gap: 10px;
+  border: var(--card-border) !important;
+  border-radius: var(--radius);
 }
-.card-new:hover { background: #1e1c1a; }
-.card-new .card-new-icon { border-color: #2a2724; color: #2a2724; }
-.card-new:hover .card-new-icon { border-color: #555; color: #555; }
-.card-new .card-new-label { color: #2a2724; }
-.card-new:hover .card-new-label { color: #555; }
+.card-new:hover { background: #222; }
+.card-new .card-new-icon { border-color: #333; color: #333; }
+.card-new:hover .card-new-icon { border-color: #666; color: #666; }
+.card-new .card-new-label { color: #333; font-family: var(--mono); }
+.card-new:hover .card-new-label { color: #666; }
 .card-new-icon {
   width: 36px; height: 36px;
   border-radius: 50%;
@@ -1535,48 +1550,36 @@ body::-webkit-scrollbar-thumb:hover { background: var(--mid); }
 <!-- ════════════════════════════════════════
      TOPBAR
 ════════════════════════════════════════ -->
-<header class="topbar">
-  <div class="tb-logo" id="tb-logo-zone">
-    <svg viewBox="0 0 419.45 324.27" fill="currentColor">
-      <path d="M199.85,240.66c-25.42-2.7-50.11-12.83-69.51-28.52-20.42-16.3-36.69-39.66-48.36-69.44l-15.82,6.21c2.36,6,4.91,11.83,7.6,17.32,11.96,24.49,27.43,44.42,46,59.23,19.88,15.98,43.33,26.12,69.69,30.13,5.75.87,13.64,1.35,17.2,1.53l-2.37-16.04c-3.06-.27-4.31-.41-4.43-.42Z"/>
-      <path d="M405.97,49.09v-.02C392.01,18.8,368.86,0,345.53,0c-.32,0-.65,0-.97.01-20.68.46-38.12,15.59-49.14,42.59-9.91,23.88-14.37,81.16-18.31,131.7v.16c-1.65,21.06-3.21,40.96-5.02,56.41-1.55,20.46-7.13,32.92-14.95,33.34-.13,0-.24,0-.36,0-6.05,0-11.7-7.87-13.76-19.13-7.92-37.26-9.58-76.46-11.19-114.36-.19-4.43-.38-8.84-.57-13.24-.09-2.41-.11-4.95-.13-7.41l1.56-.08h-1.56c-.13-15.63-.29-33.37-16.55-43.13-6.48-3.83-13.97-4.57-21.07-2.07-8.06,2.85-14.76,9.59-17.94,18.02l-.04.1c-4.81,10.42-5.06,26.99-5.29,43.01-.26,17.41-.5,33.86-6.43,40.76l-.12.14-.15.11c-3.3,2.4-6.39,2.95-9.16,1.66-11.52-5.38-14.16-39.36-14.3-41.38-3.18-24.62-13.96-84.78-45.28-112.7-7.9-7.04-17.9-9.99-27.85-9.99s-19.43,2.82-27.08,7.4C23.52,21.72,11.5,40.39,5.11,65.95-.17,87.06-1.43,112.72,1.66,136.36c8.7,85.19,65.44,153.57,148.09,178.51,20.65,6.23,41.72,9.39,62.62,9.39,61.56,0,119.51-27.88,159.01-76.48,21.62-26.09,37.35-60.23,44.31-96.12,7.34-37.84,3.89-74.26-9.72-102.56ZM400.28,135.37v.02c-16.97,117.82-107.99,170.57-190.67,170.57h-.72c-82.77-.31-173.49-53.42-189.59-171.37-3.21-33.02-.03-76.09,18.54-98.14,7.77-9.23,22.05-18.14,36.71-12.86,7.83,2.82,15.03,8.91,21.4,18.1,11.9,17.17,17.57,38.69,21.55,57.48,1.34,6.34,2.46,12.63,3.37,17.95.65,4.11,1.12,8.28,1.63,12.7,2.19,19.09,4.66,40.67,21,52.94,9.3,6.98,23.17,5.75,32.26-2.87,12.05-11.46,12.05-32.09,12.06-48.67,0-1.53,0-3.03.01-4.48.08-12.62.17-25.67,4.1-37.07l.03-.09c2.16-5.19,5.36-8.04,9.28-8.25,2.7-.15,5.01.68,6.86,2.45,5.51,5.27,5.37,17.86,5.3,24.63,0,.79-.02,1.5-.01,2.1l.25,7.18c1.47,43.12,2.99,87.7,12.04,131.2,4.8,22.04,16.52,34.04,32.13,32.91,26.65-2.16,30.08-32.67,31.54-45.7l.08-.76.65-.4c11.96-7.4,23.04-16.96,32.95-28.44l-.08-.05,1.25-1.41c9.56-11.26,17.99-24.32,25.08-38.83,2.69-5.49,5.24-11.31,7.59-17.3l-16.47-6.21-.96,2.22c-4.31,10.61-11.81,23.23-17.35,31.93-3.3,5.19-6.12,9.35-7.91,11.92-2.06,2.97-2.99,4.31-3.58,4.91-2.44,2.89-4.94,5.63-7.42,8.12-2.68,2.7-5.54,5.33-8.48,7.8l-2.89,2.43.33-3.76c.94-10.7,1.85-22.44,2.66-32.79v-.12c1.77-13.39,2.79-28.13,3.77-42.38.19-2.77.37-5.55.56-8.34,1.56-23.9,3.17-48.62,11.24-71.33,4.4-12.38,13.54-27.62,26.04-33.28,6.52-2.95,13.29-3.07,20.14-.35,12.67,5.04,23.93,17.56,33.47,37.23,10.5,21.64,14.05,48.76,10.26,78.44Z"/>
+<header class="topbar" id="topbar">
+  <!-- Drippy mark (SVG inline) -->
+  <div class="tb-logo" id="tb-logo-zone" onclick="navTo('dash')" style="cursor:pointer;flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center">
+    <svg viewBox="0 0 419.45 324.27" fill="white" style="width:26px;height:26px;opacity:.85">
+      <path d="M199.85,240.66c-25.42-2.7-50.11-12.83-69.51-28.52-20.42-16.3-36.69-39.66-48.36-69.44l-15.82,6.21c2.36,6,4.91,11.83,7.6,17.32,11.96,24.49,27.43,44.42,46,59.23,19.88,15.98,43.33,26.12,69.69,30.13,5.75.87,13.64,1.35,17.2,1.53l-2.37-16.04c-3.06-.27-4.31-.41-4.43-.42Z"/><path d="M405.97,49.09v-.02C392.01,18.8,368.86,0,345.53,0c-.32,0-.65,0-.97.01-20.68.46-38.12,15.59-49.14,42.59-9.91,23.88-14.37,81.16-18.31,131.7v.16c-1.65,21.06-3.21,40.96-5.02,56.41-1.55,20.46-7.13,32.92-14.95,33.34-.13,0-.24,0-.36,0-6.05,0-11.7-7.87-13.76-19.13-7.92-37.26-9.58-76.46-11.19-114.36-.19-4.43-.38-8.84-.57-13.24-.09-2.41-.11-4.95-.13-7.41l1.56-.08h-1.56c-.13-15.63-.29-33.37-16.55-43.13-6.48-3.83-13.97-4.57-21.07-2.07-8.06,2.85-14.76,9.59-17.94,18.02l-.04.1c-4.81,10.42-5.06,26.99-5.29,43.01-.26,17.41-.5,33.86-6.43,40.76l-.12.14-.15.11c-3.3,2.4-6.39,2.95-9.16,1.66-11.52-5.38-14.16-39.36-14.3-41.38-3.18-24.62-13.96-84.78-45.28-112.7-7.9-7.04-17.9-9.99-27.85-9.99s-19.43,2.82-27.08,7.4C23.52,21.72,11.5,40.39,5.11,65.95-.17,87.06-1.43,112.72,1.66,136.36c8.7,85.19,65.44,153.57,148.09,178.51,20.65,6.23,41.72,9.39,62.62,9.39,61.56,0,119.51-27.88,159.01-76.48,21.62-26.09,37.35-60.23,44.31-96.12,7.34-37.84,3.89-74.26-9.72-102.56Z"/>
     </svg>
   </div>
 
-  <div onclick="toggleSb()" id="sb-arrow-btn" style="width:36px;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;border-right:1px solid rgba(255,255,255,.07);flex-shrink:0"><svg id="sb-arrow" width="8" height="10" viewBox="0 0 8 10" fill="none" style="transition:transform .3s cubic-bezier(.16,1,.3,1)"><path d="M4.5 1L1.5 5L4.5 9" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <nav class="tb-pill" id="tb-nav">
-    <a id="tbn-studio" class="on" onclick="navTo('dash')">Studio</a>
-    <a id="tbn-projects" onclick="navTo('projects')">Projects</a>
-    <a id="tbn-tasks" onclick="navTo('tasks')">Tasks</a>
-    <a id="tbn-calendar" onclick="navTo('calendar')">Calendar</a>
-    <a id="tbn-network" onclick="navTo('network')">Network</a>
-    <a id="tbn-archive" onclick="navTo('archive')">Archive</a>
-  </nav>
+  <!-- Spacer -->
+  <div style="flex:1"></div>
 
-  <div class="tb-bc" id="tb-bc">
-    <div class="tb-bc-back" onclick="navTo('dash')">
-      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M5 1.5L2 6L5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      Studio
-    </div>
-    <span class="tb-bc-sep">—</span>
-    <span class="tb-bc-cur" id="bc-lbl">Project</span>
+  <!-- Date / time -->
+  <div id="tb-datetime" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap"></div>
+
+  <!-- User pill -->
+  <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.1);margin-left:12px">
+    <div id="tb-status-dot" style="width:6px;height:6px;border-radius:50%;background:#3D9B6B;flex-shrink:0"></div>
+    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.55)">G</span>
   </div>
 
-  <div class="tb-right">
-    <span class="tb-time" id="ttime"></span>
-    <div class="tb-user">
-      <div class="tu-dot"></div>
-      <span class="tu-name" id="tb-uname">G</span>
-    </div>
-    <button class="tb-new" onclick="navTo('form')">+ New Project</button>
+  <!-- Comment icon (placeholder) -->
+  <div title="Messages" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;transition:background .15s;margin-left:4px" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linecap="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
   </div>
+
+  <!-- New Project button -->
+  <button class="btn-new-proj" onclick="navTo('form')" style="margin-left:8px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;background:rgba(255,255,255,.9);color:#0F0F0F;border:none;border-radius:99px;padding:7px 16px;cursor:pointer;transition:background .15s;white-space:nowrap" onmouseover="this.style.background='#fff'" onmouseout="this.style.background='rgba(255,255,255,.9)'">NEW PROJECT</button>
 </header>
-
-<!-- ════════════════════════════════════════
-     APP SHELL
-════════════════════════════════════════ -->
-<div class="app">
-
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-inner">
@@ -2132,6 +2135,16 @@ const teamRole = id => DB.team.find(m=>m.id===id)?.fields['Role'] || '—';
 
 // ─── CLOCK ───────────────────────────────────────────────
 function tick() {
+  const tbDt = document.getElementById('tb-datetime');
+  if (tbDt) {
+    const n = new Date();
+    const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const h = n.getHours(), m = String(n.getMinutes()).padStart(2,'0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    tbDt.textContent = `${days[n.getDay()]} ${months[n.getMonth()]} ${n.getDate()}  ${h12}:${m} ET`;
+  }
   const n = new Date();
   const el = document.getElementById('ttime');
   if (el) el.textContent = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+' ET';
@@ -2250,8 +2263,8 @@ function nav(id) {
 function navTo(screen) {
   nav(screen);
   // Topbar nav state
-  const tbNav = document.getElementById('tb-nav');
-  const tbBc  = document.getElementById('tb-bc');
+  const tbNav = null;
+  const tbBc  = null;
   const tbnMap = {dash:'tbn-studio',projects:'tbn-projects',tasks:'tbn-tasks',network:'tbn-network',archive:'tbn-archive'};
   if (screen === 'dash') {
     tbNav.style.display = ''; tbBc.classList.remove('show');
