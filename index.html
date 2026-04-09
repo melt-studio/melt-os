@@ -940,6 +940,17 @@ button { font-family: inherit; }
 .sb-toggle:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
 .sb-inner { display: flex; flex-direction: column; flex: 1; overflow-y: auto; overflow-x: hidden; }
 
+
+.loader-ring {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.08);
+  border-top-color: rgba(255,255,255,.5);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,.3); letter-spacing: .08em; }
+
 </style>
 </head>
 <body>
@@ -1024,7 +1035,7 @@ button { font-family: inherit; }
       <span class="at-text" id="at-label">Connecting...</span>
     </div>
     <div class="sb-toggle" onclick="toggleSb()" title="Toggle sidebar">
-      <svg viewBox="0 0 8 12" fill="none"><path d="M5 1.5L2 6L5 10.5" stroke="#8A8680" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M5 1.5L2 6L5 10.5" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linecap="round"/></svg>
     </div>
   </aside>
 
@@ -1669,9 +1680,9 @@ function navTo(screen) {
   const tbBc  = null;
   const tbnMap = {dash:'tbn-studio',projects:'tbn-projects',tasks:'tbn-tasks',network:'tbn-network',archive:'tbn-archive'};
   if (screen === 'dash') {
-    tbNav.style.display = ''; tbBc.classList.remove('show');
+    if(tbNav) tbNav.style.display = ''; if(tbBc) tbBc.classList.remove('show');
   } else {
-    tbNav.style.display = 'none'; tbBc.classList.add('show');
+    if(tbNav) tbNav.style.display = 'none'; if(tbBc) tbBc.classList.add('show');
     const labels = {projects:'All Projects',tasks:'Tasks',pipeline:'Pipeline',deliverables:'Deliverables',files:'Files',network:'Network',archive:'Archive',detail:currentProject?.fields['Project Name']||'Project',form:'New Project',success:'Created'};
     const lbl = document.getElementById('bc-lbl');
     if (lbl && labels[screen]) lbl.textContent = labels[screen];
